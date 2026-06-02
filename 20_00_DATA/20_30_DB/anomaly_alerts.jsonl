@@ -1,0 +1,2 @@
+{"timestamp": "2026-06-01T18:41:13.255005", "type": "tool_looping_drift", "message": "Bucle operativo potencial detectado: Invocación consecutiva repetida de la herramienta 'tool_run_sentiment' (4 veces)."}
+{"timestamp": "2026-06-01T18:41:13.255102", "type": "excessive_reasoning_steps", "message": "Desviación de razonamiento detectada: Longitud de cadena inusualmente alta (11 pasos)."}

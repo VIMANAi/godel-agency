@@ -1,0 +1,17 @@
+{
+    "identity": {
+        "crate_id": "saiel.data_anonymizer",
+        "version": "2.0",
+        "conceptual_zone": "Privacidad y Cumplimiento"
+    },
+    "governance": {
+        "task": "data_standardization_and_anonymization",
+        "compliance": ["LGPDPPSO", "GDPR", "Berkeley Protocol"],
+        "tools": ["Pydantic", "Faker", "Structlog"]
+    },
+    "dependencies": ["pandas", "pydantic", "structlog", "faker", "hashlib"],
+    "schema": {
+        "input": "Raw Social Media JSON",
+        "output": "Anonymized & Validated JSONL"
+    }
+}

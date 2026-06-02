@@ -1,0 +1,41 @@
+{
+  "_comment": "Vigil — MCP Server configuration. Copiar contenido relevante a ~/.config/windsurf/mcp.json o el equivalente del IDE. Activar solo los servidores que necesites en el momento.",
+
+  "mcpServers": {
+
+    "vigil-filesystem": {
+      "_comment": "Acceso de lectura/escritura SOLO a carpetas del proyecto. NUNCA apuntar al home completo.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/fnfrater/Escritorio/RndmStudio/vigil/docs",
+        "/home/fnfrater/Escritorio/RndmStudio/vigil/data/gold",
+        "/home/fnfrater/Escritorio/RndmStudio/vigil/reports",
+        "/home/fnfrater/Escritorio/RndmStudio/vigil/config"
+      ],
+      "env": {},
+      "autostart": false
+    },
+
+    "vigil-db": {
+      "_comment": "mcp-toolbox para Neo4j Aura. Activar solo cuando el grafo tenga datos. Requiere ./bin/toolbox corriendo.",
+      "type": "http",
+      "url": "http://127.0.0.1:5000/mcp/vigil-electoral",
+      "autostart": false,
+      "_disabled": true
+    },
+
+    "notebooklm": {
+      "_comment": "notebooklm-mcp-cli. Activar solo para síntesis de documentos largos. Desactivar cuando no se use (ocupa contexto).",
+      "command": "notebooklm-mcp",
+      "args": [],
+      "env": {
+        "NOTEBOOKLM_DATA_DIR": "/home/fnfrater/Escritorio/RndmStudio/vigil/.notebooklm"
+      },
+      "autostart": false,
+      "_disabled": true
+    }
+
+  }
+}

@@ -1,0 +1,20 @@
+{
+    "identity": {
+        "crate_id": "saiel.intelligence_v2",
+        "version": "2.1",
+        "conceptual_zone": "Political Intelligence & Data Analytics"
+    },
+    "structure": {
+        "root": "/home/persival/Dev/Projects/SAIEL",
+        "engine": "engine/core",
+        "data": "data",
+        "reports": "reports",
+        "context": "/home/persival/Dev/contexto/SAIEL",
+        "knowledge_base": "/home/persival/Dev/Knowledge_Base/SAIEL_Persistence"
+    },
+    "governance": {
+        "standard": "SoC v1.1",
+        "compliance": ["Privacy-First", "Berkeley Protocol"],
+        "orchestration": "pdiv_pipeline.py"
+    }
+}

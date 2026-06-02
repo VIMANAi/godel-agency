@@ -1,0 +1,72 @@
+[
+    {
+        "id": "a3baa1f768fcb411",
+        "source": "instagram",
+        "target": "Geraldine",
+        "candidato": "Geraldine",
+        "user": "spammer_bot_tepic",
+        "user_id": "82bfed88",
+        "text": "Hoy el candidato Geraldine estuvo recorriendo colonias en Tepic.",
+        "date": "2026-05-30T15:14:21.580501",
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "collected_at": "2026-05-30T15:14:21.580518"
+    },
+    {
+        "id": "f6edce989f594a3b",
+        "source": "instagram",
+        "target": "Geraldine",
+        "candidato": "Geraldine",
+        "user": "galvezgerman",
+        "user_id": "2491bc34",
+        "text": "Falta mucha seguridad en las colonias",
+        "date": "2026-05-29T15:14:21.580584",
+        "likes": 0,
+        "shares": 0,
+        "comments": 45,
+        "collected_at": "2026-05-30T15:14:21.580591"
+    },
+    {
+        "id": "f4f5096ca5edbca2",
+        "source": "instagram",
+        "target": "Geraldine",
+        "candidato": "Geraldine",
+        "user": "alvarozamora",
+        "user_id": "5c31bcf6",
+        "text": "Excelente alcaldesa para Tepic",
+        "date": "2026-05-28T15:14:21.580637",
+        "likes": 5,
+        "shares": 0,
+        "comments": 1,
+        "collected_at": "2026-05-30T15:14:21.580641"
+    },
+    {
+        "id": "25e75e2ce64f1388",
+        "source": "instagram",
+        "target": "Geraldine",
+        "candidato": "Geraldine",
+        "user": "spammer_bot_tepic",
+        "user_id": "209e5a7f",
+        "text": "Se ven los cambios en la ciudad",
+        "date": "2026-05-27T15:14:21.580683",
+        "likes": 950,
+        "shares": 95,
+        "comments": 1,
+        "collected_at": "2026-05-30T15:14:21.580686"
+    },
+    {
+        "id": "394c2a6fa4a10dd7",
+        "source": "instagram",
+        "target": "Geraldine",
+        "candidato": "Geraldine",
+        "user": "noemi24",
+        "user_id": "02f5b725",
+        "text": "No hay transparencia",
+        "date": "2026-05-26T15:14:21.580734",
+        "likes": 150,
+        "shares": 15,
+        "comments": 2,
+        "collected_at": "2026-05-30T15:14:21.580738"
+    }
+]

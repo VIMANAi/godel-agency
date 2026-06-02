@@ -1,0 +1,108 @@
+{
+  "_meta": {
+    "schema": "UDPT-NC-v1",
+    "project": "Agency / SAIEL",
+    "standard": "Zero-padded decenas | SCREAMING_SNAKE_CASE",
+    "format": "[FASE]_[SUBFASE]_[SECUENCIA]_[DESCRIPCION]",
+    "generated": "2026-06-02",
+    "note": "Índice machine-readable de la estructura Agency para agentes IA"
+  },
+  "phases": {
+    "10_00_SRC": {
+      "description": "Código fuente principal del sistema SAIEL",
+      "subphases": {
+        "10_10_CORE": {
+          "description": "Motor PDIV: pipelines, adaptadores BigQuery/Vertex, conectores DB",
+          "key_files": [
+            "pdiv_pipeline.py", "pdiv_calculator.py", "data_ingestion.py",
+            "bq_adapter.py", "vertex_adapter.py", "db_connector.py",
+            "local_sentiment.py", "sensemaker_engine.py"
+          ]
+        },
+        "10_20_AGENTS": {
+          "description": "Definición de agentes, manifiestos A2A, pruebas de seguridad",
+          "key_files": [
+            "agent_manifest.json", "manifest.json", "godel_agent.py",
+            "test_a2a.py", "test_agent_security.py", "test_patterns.py"
+          ],
+          "subphases": {
+            "10_20_10_CONFIG": {
+              "description": "Configuración modular de agentes (proxies/wrappers de godel-core)",
+              "modules": [
+                "orchestrator", "memory_bank", "security", "identity",
+                "registry", "workflow", "gateway", "sandbox", "triggers",
+                "skills_composer", "mcp_servers", "a2a_card", "a2a_client",
+                "approval", "anomaly", "sdlc_suite", "dashboard"
+              ]
+            }
+          }
+        },
+        "10_30_COLLECTORS": {
+          "description": "Colectores de datos: redes sociales, APIs externas",
+          "key_files": ["social_collector.py", "mass_collector.py", "apify_client.py"]
+        },
+        "10_40_DEPLOY": {
+          "description": "Infraestructura de despliegue: Cloud Run, Docker, Windows receiver",
+          "key_files": ["Dockerfile", "main_cloudrun.py", "saiel_start.sh", "windows_receiver.py"]
+        },
+        "10_50_TESTS": {
+          "description": "Pruebas de integración del pipeline completo",
+          "key_files": ["test_pipeline.py"]
+        }
+      }
+    },
+    "20_00_DATA": {
+      "description": "Almacén de datos estratificado por nivel de procesamiento",
+      "subphases": {
+        "20_10_RAW": {"description": "Datos crudos de APIs, sin transformar"},
+        "20_20_PROCESSED": {"description": "Datos post-pipeline PDIV"},
+        "20_30_DB": {"description": "Snapshots y esquemas de base de datos local"},
+        "20_40_SESSIONS": {"description": "Estados de sesión y memoria de agente"}
+      }
+    },
+    "30_00_NOTEBOOKS": {
+      "description": "Notebooks de análisis y exploración",
+      "files": ["01_data_collection.ipynb"]
+    },
+    "40_00_DOCS": {
+      "description": "Documentación técnica del proyecto",
+      "subphases": {
+        "40_10_GOVERNANCE": {
+          "description": "Estándares, auditoría, SOPs, directivas GEMINI",
+          "key_files": ["AUDIT_LOG_SAIEL.md", "ESTANDAR_DUAL_LOCAL_CLOUD.md", "GEMINI.md"]
+        },
+        "40_20_MANUALS": {
+          "description": "Manuales técnicos operativos",
+          "key_files": ["INSTRUCCIONES_TECNICAS.md"]
+        },
+        "40_30_RESEARCH": {
+          "description": "Investigación estratégica, PDIV technical docs, workflows",
+          "key_files": [
+            "ESTRATEGIA.md", "FLUJO_PROYECTO.md", "PDIV_TECHNICAL_DOCS.md",
+            "WORKFLOW_ADOPTED.md", "PERFIL_CORPORATIVO.md"
+          ]
+        }
+      }
+    },
+    "50_00_VIGIL": {
+      "description": "Submódulo autónomo de vigilancia e inteligencia electoral",
+      "note": "Tiene su propia arquitectura interna src/data/config/notebooks"
+    },
+    "80_00_OUTPUTS": {
+      "description": "Destino obligatorio de todos los artefactos generados por agentes",
+      "write_policy": "programmatic_only",
+      "subphases": {
+        "80_10_REPORTS": {
+          "description": "Reportes HTML/MD/JSON del pipeline y el agente"
+        }
+      }
+    },
+    "90_00_ARCHIVE": {
+      "description": "Histórico de versiones anteriores — SOLO LECTURA",
+      "read_policy": "readonly_reference",
+      "subphases": {
+        "90_10_SCRATCH": {"description": "Temporales de desarrollo — se limpia periódicamente"}
+      }
+    }
+  }
+}

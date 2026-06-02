@@ -1,0 +1,52 @@
+[
+    {
+        "texto": "Andrea Navarro es fundadora de Morena y ha trabajado por el bienestar de Tepic....",
+        "label": "POS",
+        "score": 0.59,
+        "probas": {
+            "NEG": 0.0706024169921875,
+            "NEU": 0.26473161578178406,
+            "POS": 0.664665937423706
+        }
+    },
+    {
+        "texto": "La diputada obtuvo la votación más alta del distrito, demostrando apoyo popular real....",
+        "label": "POS",
+        "score": 0.72,
+        "probas": {
+            "NEG": 0.018828678876161575,
+            "NEU": 0.2375529408454895,
+            "POS": 0.743618369102478
+        }
+    },
+    {
+        "texto": "Se rumora que hay conflicto entre los Navarros y Geraldine por la policía en la feria....",
+        "label": "NEU",
+        "score": -0.42,
+        "probas": {
+            "NEG": 0.43285658955574036,
+            "NEU": 0.54972904920578,
+            "POS": 0.01741436868906021
+        }
+    },
+    {
+        "texto": "Andrea aclaró que no tiene parentesco con el gobernador Arturo Navarro....",
+        "label": "NEU",
+        "score": -0.11,
+        "probas": {
+            "NEG": 0.20193733274936676,
+            "NEU": 0.707604706287384,
+            "POS": 0.09045793861150742
+        }
+    },
+    {
+        "texto": "Es una joven dentista que camina las colonias y escucha a la gente....",
+        "label": "POS",
+        "score": 0.86,
+        "probas": {
+            "NEG": 0.007099039386957884,
+            "NEU": 0.12349782884120941,
+            "POS": 0.8694031238555908
+        }
+    }
+]

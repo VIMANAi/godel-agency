@@ -1,0 +1,60 @@
+# SAIEL Intelligence System - Dependencias Principal
+
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Machine Learning & NLP
+sentence-transformers>=2.2.0
+pysentimiento>=0.7.0
+transformers>=4.30.0
+
+# Data Validation & Schema
+pydantic>=2.0.0
+jsonschema>=4.17.0
+great-expectations>=0.17.0
+
+# Privacy & Anonymization
+faker>=19.0.0
+presidio>=2.2.0
+cryptography>=41.0.0
+
+# Logging & Monitoring
+structlog>=23.0.0
+prometheus-client>=0.17.0
+
+# Date Processing
+python-dateutil>=2.8.0
+
+# Web Scraping & Data Collection
+apify-client>=2.2.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# Local LLM Integration
+ollama-python>=0.1.0
+
+# Database (Optional)
+sqlalchemy>=2.0.0
+sqlite3
+
+# Visualization & Reporting
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+jinja2>=3.1.0
+
+# Development & Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.0.0
+flake8>=6.0.0
+
+# System Integration
+psutil>=5.9.0
+schedule>=1.2.0
+
+# Security & Compliance
+python-dotenv>=1.0.0
+click>=8.1.0

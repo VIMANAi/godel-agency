@@ -1,0 +1,302 @@
+[
+    {
+        "texto": "👏👏👏😍😍😍❤️❤️❤️...",
+        "label": "NEU",
+        "score": 0.29,
+        "probas": {
+            "NEG": 0.12878847122192383,
+            "NEU": 0.4564308822154999,
+            "POS": 0.41478070616722107
+        }
+    },
+    {
+        "texto": "i'm ready para el cambio ❤️💯🔥🎉👏...",
+        "label": "NEU",
+        "score": 0.39,
+        "probas": {
+            "NEG": 0.05421236529946327,
+            "NEU": 0.498960942029953,
+            "POS": 0.446826696395874
+        }
+    },
+    {
+        "texto": "Hermosa e inteligente 😍❤️...",
+        "label": "POS",
+        "score": 0.93,
+        "probas": {
+            "NEG": 0.007389682810753584,
+            "NEU": 0.05986713618040085,
+            "POS": 0.9327431917190552
+        }
+    },
+    {
+        "texto": "Pésimo, ya estás igual que todos los demás políticos...",
+        "label": "NEG",
+        "score": -0.96,
+        "probas": {
+            "NEG": 0.9670048952102661,
+            "NEU": 0.02481774426996708,
+            "POS": 0.008177277632057667
+        }
+    },
+    {
+        "texto": "Qué gusto saber que Tepic aún tiene esperanza, el mejor de los éxitos Lic.Ponce 👏❤️...",
+        "label": "POS",
+        "score": 0.97,
+        "probas": {
+            "NEG": 0.004495903383940458,
+            "NEU": 0.02023368515074253,
+            "POS": 0.9752703905105591
+        }
+    },
+    {
+        "texto": "Mucho éxito hermosa desde el sur @geraldineponcem ❤️❤️❤️❤️❤️❤️❤️...",
+        "label": "POS",
+        "score": 0.94,
+        "probas": {
+            "NEG": 0.006682199891656637,
+            "NEU": 0.04798726737499237,
+            "POS": 0.9453305602073669
+        }
+    },
+    {
+        "texto": "¿Ya te pasaron el tip, que de presidente municipal se roba más que de diputada?\n¿O por qué dar el pa...",
+        "label": "NEG",
+        "score": -0.85,
+        "probas": {
+            "NEG": 0.8741158246994019,
+            "NEU": 0.1024172306060791,
+            "POS": 0.023466946557164192
+        }
+    },
+    {
+        "texto": "Vamos con todo reina 💪 🔥😍😘...",
+        "label": "POS",
+        "score": 0.54,
+        "probas": {
+            "NEG": 0.04642839729785919,
+            "NEU": 0.37074896693229675,
+            "POS": 0.5828226208686829
+        }
+    },
+    {
+        "texto": "¿No que TODO LO POLÍTICO sólo era por FB?🤔...",
+        "label": "NEG",
+        "score": -0.82,
+        "probas": {
+            "NEG": 0.8256221413612366,
+            "NEU": 0.16545867919921875,
+            "POS": 0.008919133804738522
+        }
+    },
+    {
+        "texto": "Felicidades y éxitos desde tabaasco...",
+        "label": "POS",
+        "score": 0.78,
+        "probas": {
+            "NEG": 0.01611017808318138,
+            "NEU": 0.18681718409061432,
+            "POS": 0.7970726490020752
+        }
+    },
+    {
+        "texto": "FELICIDADES GERALDINE.- SE DE ANTEMANO QUE HARAS UN BUEN TRABAJO COMO PRESIDENTA DE TEPIC, AHI PODRA...",
+        "label": "POS",
+        "score": 0.95,
+        "probas": {
+            "NEG": 0.004747201222926378,
+            "NEU": 0.035930369049310684,
+            "POS": 0.959322452545166
+        }
+    },
+    {
+        "texto": "👏👏 felicidades en horabuena...",
+        "label": "POS",
+        "score": 0.4,
+        "probas": {
+            "NEG": 0.07428708672523499,
+            "NEU": 0.4471440613269806,
+            "POS": 0.4785688817501068
+        }
+    },
+    {
+        "texto": "Francamente desconozco todo trabajo legislativo, de gestión o académico de esta persona, la identifi...",
+        "label": "NEU",
+        "score": 0.08,
+        "probas": {
+            "NEG": 0.10205690562725067,
+            "NEU": 0.7191664576530457,
+            "POS": 0.1787765920162201
+        }
+    },
+    {
+        "texto": "👏👏🙋🙋👍👍👌✋👏👏...",
+        "label": "NEU",
+        "score": 0.02,
+        "probas": {
+            "NEG": 0.19090233743190765,
+            "NEU": 0.6024444699287415,
+            "POS": 0.20665323734283447
+        }
+    },
+    {
+        "texto": "Felicidades👏...",
+        "label": "POS",
+        "score": 0.83,
+        "probas": {
+            "NEG": 0.017237361520528793,
+            "NEU": 0.13355259597301483,
+            "POS": 0.8492100238800049
+        }
+    },
+    {
+        "texto": "❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️...",
+        "label": "POS",
+        "score": 0.28,
+        "probas": {
+            "NEG": 0.21312910318374634,
+            "NEU": 0.28887051343917847,
+            "POS": 0.4980003535747528
+        }
+    },
+    {
+        "texto": "👏👏🔥❤️...",
+        "label": "NEU",
+        "score": 0.09,
+        "probas": {
+            "NEG": 0.16559021174907684,
+            "NEU": 0.5826703310012817,
+            "POS": 0.2517394423484802
+        }
+    },
+    {
+        "texto": "Hermosa bonita mis princesa maria Geraldine ponce...",
+        "label": "POS",
+        "score": 0.94,
+        "probas": {
+            "NEG": 0.006384132895618677,
+            "NEU": 0.047946397215127945,
+            "POS": 0.945669412612915
+        }
+    },
+    {
+        "texto": "Te amo 😍...",
+        "label": "POS",
+        "score": 0.91,
+        "probas": {
+            "NEG": 0.01334040705114603,
+            "NEU": 0.06334975361824036,
+            "POS": 0.923309862613678
+        }
+    },
+    {
+        "texto": "❤️😍😍❤️❤️😍...",
+        "label": "NEU",
+        "score": 0.15,
+        "probas": {
+            "NEG": 0.12572479248046875,
+            "NEU": 0.5977154970169067,
+            "POS": 0.2765597105026245
+        }
+    },
+    {
+        "texto": "Cuanto mides de estatura?...",
+        "label": "NEU",
+        "score": -0.01,
+        "probas": {
+            "NEG": 0.07261569052934647,
+            "NEU": 0.8618668913841248,
+            "POS": 0.06551749259233475
+        }
+    },
+    {
+        "texto": "Wow beautiful 🌹...",
+        "label": "POS",
+        "score": 0.73,
+        "probas": {
+            "NEG": 0.03331179544329643,
+            "NEU": 0.20240361988544464,
+            "POS": 0.764284610748291
+        }
+    },
+    {
+        "texto": "Muy bien , yo diría lista y media !!! jeje 😂🌹👏...",
+        "label": "NEU",
+        "score": 0.34,
+        "probas": {
+            "NEG": 0.03659910708665848,
+            "NEU": 0.5915530323982239,
+            "POS": 0.37184786796569824
+        }
+    },
+    {
+        "texto": "❤️😍❤️❤️😍😍❤️😍❤️😍😍❤️❤️😍😍❤️😍😍❤️❤️😍❤️❤️😍😍❤️❤️❤️❤️😍❤️😍...",
+        "label": "POS",
+        "score": 0.38,
+        "probas": {
+            "NEG": 0.09639847278594971,
+            "NEU": 0.4228453040122986,
+            "POS": 0.4807561933994293
+        }
+    },
+    {
+        "texto": "Preciosa 😍😍😍...",
+        "label": "NEU",
+        "score": 0.25,
+        "probas": {
+            "NEG": 0.0937119722366333,
+            "NEU": 0.5593974590301514,
+            "POS": 0.34689056873321533
+        }
+    },
+    {
+        "texto": "😍...",
+        "label": "NEU",
+        "score": 0.37,
+        "probas": {
+            "NEG": 0.04502911493182182,
+            "NEU": 0.5397820472717285,
+            "POS": 0.41518884897232056
+        }
+    },
+    {
+        "texto": "Bella...",
+        "label": "NEU",
+        "score": -0.15,
+        "probas": {
+            "NEG": 0.32489967346191406,
+            "NEU": 0.50124591588974,
+            "POS": 0.17385438084602356
+        }
+    },
+    {
+        "texto": "Mujeres transformando a México 🇲🇽🇲🇽🇲🇽🇲🇽 enhorabuena 👍...",
+        "label": "NEU",
+        "score": -0.02,
+        "probas": {
+            "NEG": 0.220290869474411,
+            "NEU": 0.5791129469871521,
+            "POS": 0.2005961537361145
+        }
+    },
+    {
+        "texto": "😍😍😍😍...",
+        "label": "NEU",
+        "score": 0.15,
+        "probas": {
+            "NEG": 0.12572479248046875,
+            "NEU": 0.5977154970169067,
+            "POS": 0.2765597105026245
+        }
+    },
+    {
+        "texto": "Hermosa como siempre diputada....",
+        "label": "POS",
+        "score": 0.92,
+        "probas": {
+            "NEG": 0.011492247693240643,
+            "NEU": 0.05736040323972702,
+            "POS": 0.9311473965644836
+        }
+    }
+]

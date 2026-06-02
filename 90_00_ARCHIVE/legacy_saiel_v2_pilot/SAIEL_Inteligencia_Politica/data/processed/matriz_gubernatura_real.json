@@ -1,0 +1,32 @@
+[
+    {
+        "nombre": "Pavel Jarero",
+        "eje_x_percepcion": 0.65,
+        "eje_y_posicionamiento": 85,
+        "categoria": "Gubernatura"
+    },
+    {
+        "nombre": "Héctor Santana",
+        "eje_x_percepcion": 0.58,
+        "eje_y_posicionamiento": 80,
+        "categoria": "Gubernatura"
+    },
+    {
+        "nombre": "Geraldine Ponce",
+        "eje_x_percepcion": -0.42,
+        "eje_y_posicionamiento": 95,
+        "categoria": "Gubernatura"
+    },
+    {
+        "nombre": "Elizabeth López Blanco",
+        "eje_x_percepcion": 0.40,
+        "eje_y_posicionamiento": 60,
+        "categoria": "Gubernatura"
+    },
+    {
+        "nombre": "Jazmín Bugarín",
+        "eje_x_percepcion": 0.15,
+        "eje_y_posicionamiento": 55,
+        "categoria": "Gubernatura"
+    }
+]

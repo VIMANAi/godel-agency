@@ -1,0 +1,70 @@
+# ============================================================
+# Vigil — MCP Toolbox configuration (googleapis/mcp-toolbox)
+# Activar cuando Neo4j Aura esté configurado con datos reales.
+# Ejecutar con: ./bin/toolbox --config config/tools.yaml
+# ============================================================
+
+sources:
+  - kind: source
+    name: vigil-neo4j
+    type: neo4j
+    uri: ${NEO4J_URI}
+    user: ${NEO4J_USER}
+    password: ${NEO4J_PASSWORD}
+
+tools:
+  - kind: tool
+    name: buscar_activos_candidato
+    type: neo4j-cypher
+    source: vigil-neo4j
+    description: >
+      Busca todos los activos digitales asociados a un candidato
+      en el grafo electoral, ordenados por tasa de interacción.
+    parameters:
+      - name: candidato
+        type: string
+        description: Nombre exacto del candidato
+    statement: >
+      MATCH (a:ActivoDigital)-[:APOYA_A]->(c:Candidato {nombre: $candidato})
+      RETURN a.id_activo, a.plataforma, a.framing, a.tasa_interaccion
+      ORDER BY a.tasa_interaccion DESC LIMIT 20
+
+  - kind: tool
+    name: detectar_clusters_cib
+    type: neo4j-cypher
+    source: vigil-neo4j
+    description: >
+      Detecta activos con sincronía temporal alta (posible CIB).
+      Retorna clústeres con S_T por encima del umbral configurado.
+    parameters:
+      - name: threshold
+        type: number
+        description: Umbral de sincronía (default 0.85)
+    statement: >
+      MATCH (a:ActivoDigital)
+      WHERE a.sincronia_temporal >= $threshold
+      RETURN a.id_activo, a.plataforma, a.sincronia_temporal
+      ORDER BY a.sincronia_temporal DESC
+
+  - kind: tool
+    name: resumen_ecosistema
+    type: neo4j-cypher
+    source: vigil-neo4j
+    description: >
+      Retorna un resumen del ecosistema digital completo:
+      total de activos, distribución por framing y CAR por candidato.
+    parameters: []
+    statement: >
+      MATCH (c:Candidato)<-[:APOYA_A]-(a:ActivoDigital)
+      RETURN c.nombre AS candidato,
+             count(a) AS total_activos,
+             sum(a.seguidores) AS total_seguidores,
+             collect(DISTINCT a.framing) AS framings
+
+toolsets:
+  - kind: toolset
+    name: vigil-electoral
+    tools:
+      - buscar_activos_candidato
+      - detectar_clusters_cib
+      - resumen_ecosistema

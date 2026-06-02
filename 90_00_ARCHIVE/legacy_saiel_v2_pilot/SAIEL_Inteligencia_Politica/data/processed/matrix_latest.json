@@ -1,0 +1,401 @@
+[
+  [
+    {
+      "texto": "Andrea Navarro es fundadora de Morena y ha trabajado por el bienestar de Tepic....",
+      "label": "POS",
+      "score": 0.59,
+      "probas": {
+        "NEG": 0.0706024169921875,
+        "NEU": 0.26473161578178406,
+        "POS": 0.664665937423706
+      }
+    },
+    {
+      "texto": "La diputada obtuvo la votación más alta del distrito, demostrando apoyo popular real....",
+      "label": "POS",
+      "score": 0.72,
+      "probas": {
+        "NEG": 0.018828678876161575,
+        "NEU": 0.2375529408454895,
+        "POS": 0.743618369102478
+      }
+    },
+    {
+      "texto": "Se rumora que hay conflicto entre los Navarros y Geraldine por la policía en la feria....",
+      "label": "NEU",
+      "score": -0.42,
+      "probas": {
+        "NEG": 0.43285658955574036,
+        "NEU": 0.54972904920578,
+        "POS": 0.01741436868906021
+      }
+    },
+    {
+      "texto": "Andrea aclaró que no tiene parentesco con el gobernador Arturo Navarro....",
+      "label": "NEU",
+      "score": -0.11,
+      "probas": {
+        "NEG": 0.20193733274936676,
+        "NEU": 0.707604706287384,
+        "POS": 0.09045793861150742
+      }
+    },
+    {
+      "texto": "Es una joven dentista que camina las colonias y escucha a la gente....",
+      "label": "POS",
+      "score": 0.86,
+      "probas": {
+        "NEG": 0.007099039386957884,
+        "NEU": 0.12349782884120941,
+        "POS": 0.8694031238555908
+      }
+    }
+  ],
+  [
+    {
+      "nombre": "Pavel Jarero",
+      "eje_x_percepcion": 0.65,
+      "eje_y_posicionamiento": 85,
+      "categoria": "Gubernatura"
+    },
+    {
+      "nombre": "Héctor Santana",
+      "eje_x_percepcion": 0.58,
+      "eje_y_posicionamiento": 80,
+      "categoria": "Gubernatura"
+    },
+    {
+      "nombre": "Geraldine Ponce",
+      "eje_x_percepcion": -0.42,
+      "eje_y_posicionamiento": 95,
+      "categoria": "Gubernatura"
+    },
+    {
+      "nombre": "Elizabeth López Blanco",
+      "eje_x_percepcion": 0.4,
+      "eje_y_posicionamiento": 60,
+      "categoria": "Gubernatura"
+    },
+    {
+      "nombre": "Jazmín Bugarín",
+      "eje_x_percepcion": 0.15,
+      "eje_y_posicionamiento": 55,
+      "categoria": "Gubernatura"
+    }
+  ],
+  [
+    {
+      "nombre": "Beatriz Estrada",
+      "eje_x_percepcion": 0.85,
+      "eje_y_posicionamiento": 90,
+      "categoria": "Tepic"
+    },
+    {
+      "nombre": "Andrea Navarro",
+      "eje_x_percepcion": 0.42,
+      "eje_y_posicionamiento": 75,
+      "categoria": "Tepic"
+    },
+    {
+      "nombre": "Adahán Casas",
+      "eje_x_percepcion": 0.35,
+      "eje_y_posicionamiento": 70,
+      "categoria": "Tepic"
+    },
+    {
+      "nombre": "Alejandro Galván",
+      "eje_x_percepcion": -0.68,
+      "eje_y_posicionamiento": 88,
+      "categoria": "Tepic"
+    }
+  ],
+  [
+    {
+      "id_narrativa": 0,
+      "volumen": 6,
+      "porcentaje": 12.0,
+      "sentimiento_salud": 0.55,
+      "ejemplos_clave": [
+        "Muy bien por la alcaldesa gestionando apoyos con Marcelo Ebrard para nuestra ciudad.",
+        "Orgullosa de nuestra diputada Andrea Navarro, la más votada y siempre firme con la 4T.",
+        "La detención de Galván es una clara persecución política del gobernador Navarro Quintero."
+      ],
+      "keywords": "Auto-detectada"
+    },
+    {
+      "id_narrativa": 1,
+      "volumen": 14,
+      "porcentaje": 28.0,
+      "sentimiento_salud": -0.68,
+      "ejemplos_clave": [
+        "¿No que TODO LO POLÍTICO sólo era por FB?🤔",
+        "Pésimo, ya estás igual que todos los demás políticos",
+        "Pésimo, ya estás igual que todos los demás políticos"
+      ],
+      "keywords": "Auto-detectada"
+    },
+    {
+      "id_narrativa": 2,
+      "volumen": 22,
+      "porcentaje": 44.0,
+      "sentimiento_salud": 0.43,
+      "ejemplos_clave": [
+        "😍",
+        "😍😍😍😍",
+        "👏👏🔥❤️"
+      ],
+      "keywords": "Auto-detectada"
+    },
+    {
+      "id_narrativa": 3,
+      "volumen": 2,
+      "porcentaje": 4.0,
+      "sentimiento_salud": 0.39,
+      "ejemplos_clave": [
+        "i'm ready para el cambio ❤️💯🔥🎉👏",
+        "i'm ready para el cambio ❤️💯🔥🎉👏"
+      ],
+      "keywords": "Auto-detectada"
+    },
+    {
+      "id_narrativa": 4,
+      "volumen": 6,
+      "porcentaje": 12.0,
+      "sentimiento_salud": 0.46,
+      "ejemplos_clave": [
+        "Bella",
+        "Preciosa 😍😍😍",
+        "Wow beautiful 🌹"
+      ],
+      "keywords": "Auto-detectada"
+    }
+  ],
+  {
+    "IDENTIDAD": {
+      "temas": [
+        "Fundadora Morena",
+        "No es familiar del Gob",
+        "UAN / Joven"
+      ],
+      "menciones": 4,
+      "sentimiento_promedio": 0.52
+    },
+    "GESTION": {
+      "temas": [
+        "Bienestar Tepic",
+        "Jóvenes Construyendo Futuro",
+        "Distrito 2"
+      ],
+      "menciones": 0,
+      "sentimiento_promedio": 0
+    },
+    "CONFLICTO": {
+      "temas": [
+        "Policía Feria",
+        "Geraldine vs Gob",
+        "Ataques Ultraderecha"
+      ],
+      "menciones": 1,
+      "sentimiento_promedio": -0.42
+    }
+  },
+  [
+    [
+      {
+        "texto": "Andrea Navarro es fundadora de Morena y ha trabajado por el bienestar de Tepic....",
+        "label": "POS",
+        "score": 0.59,
+        "probas": {
+          "NEG": 0.0706024020910263,
+          "NEU": 0.26473167538642883,
+          "POS": 0.664665937423706
+        }
+      },
+      {
+        "texto": "La diputada obtuvo la votación más alta del distrito, demostrando apoyo popular real....",
+        "label": "POS",
+        "score": 0.72,
+        "probas": {
+          "NEG": 0.018828675150871277,
+          "NEU": 0.2375529557466507,
+          "POS": 0.743618369102478
+        }
+      },
+      {
+        "texto": "Se rumora que hay conflicto entre los Navarros y Geraldine por la policía en la feria....",
+        "label": "NEU",
+        "score": -0.42,
+        "probas": {
+          "NEG": 0.4328565001487732,
+          "NEU": 0.5497291684150696,
+          "POS": 0.01741436868906021
+        }
+      },
+      {
+        "texto": "Andrea aclaró que no tiene parentesco con el gobernador Arturo Navarro....",
+        "label": "NEU",
+        "score": -0.11,
+        "probas": {
+          "NEG": 0.20193733274936676,
+          "NEU": 0.707604706287384,
+          "POS": 0.09045793861150742
+        }
+      },
+      {
+        "texto": "Es una joven dentista que camina las colonias y escucha a la gente....",
+        "label": "POS",
+        "score": 0.86,
+        "probas": {
+          "NEG": 0.007099035661667585,
+          "NEU": 0.12349778413772583,
+          "POS": 0.8694031834602356
+        }
+      }
+    ],
+    [
+      {
+        "nombre": "Pavel Jarero",
+        "eje_x_percepcion": 0.65,
+        "eje_y_posicionamiento": 85,
+        "categoria": "Gubernatura"
+      },
+      {
+        "nombre": "Héctor Santana",
+        "eje_x_percepcion": 0.58,
+        "eje_y_posicionamiento": 80,
+        "categoria": "Gubernatura"
+      },
+      {
+        "nombre": "Geraldine Ponce",
+        "eje_x_percepcion": -0.42,
+        "eje_y_posicionamiento": 95,
+        "categoria": "Gubernatura"
+      },
+      {
+        "nombre": "Elizabeth López Blanco",
+        "eje_x_percepcion": 0.4,
+        "eje_y_posicionamiento": 60,
+        "categoria": "Gubernatura"
+      },
+      {
+        "nombre": "Jazmín Bugarín",
+        "eje_x_percepcion": 0.15,
+        "eje_y_posicionamiento": 55,
+        "categoria": "Gubernatura"
+      }
+    ],
+    [
+      {
+        "nombre": "Beatriz Estrada",
+        "eje_x_percepcion": 0.85,
+        "eje_y_posicionamiento": 90,
+        "categoria": "Tepic"
+      },
+      {
+        "nombre": "Andrea Navarro",
+        "eje_x_percepcion": 0.42,
+        "eje_y_posicionamiento": 75,
+        "categoria": "Tepic"
+      },
+      {
+        "nombre": "Adahán Casas",
+        "eje_x_percepcion": 0.35,
+        "eje_y_posicionamiento": 70,
+        "categoria": "Tepic"
+      },
+      {
+        "nombre": "Alejandro Galván",
+        "eje_x_percepcion": -0.68,
+        "eje_y_posicionamiento": 88,
+        "categoria": "Tepic"
+      }
+    ],
+    [
+      {
+        "id_narrativa": 0,
+        "volumen": 2,
+        "porcentaje": 13.33,
+        "sentimiento_salud": -0.95,
+        "ejemplos_clave": [
+          "La contaminación del río Mololoa sigue igual. Promesas y más promesas de Geraldine.",
+          "Es increíble que el SIAPA tenga que ampararse para que la CFE no nos deje sin agua. El derecho humano al agua no es negociable en Tepic."
+        ],
+        "keywords": "Auto-detectada"
+      },
+      {
+        "id_narrativa": 1,
+        "volumen": 4,
+        "porcentaje": 26.67,
+        "sentimiento_salud": 0.9,
+        "ejemplos_clave": [
+          "Muy bien por la alcaldesa gestionando apoyos con Marcelo Ebrard para nuestra ciudad.",
+          "Orgullosa de nuestra diputada Andrea Navarro, la más votada y siempre firme con la 4T.",
+          "Apoyo total a la Dra. Andrea Navarro. Es una profesional que escucha de verdad al pueblo."
+        ],
+        "keywords": "Auto-detectada"
+      },
+      {
+        "id_narrativa": 2,
+        "volumen": 6,
+        "porcentaje": 40.0,
+        "sentimiento_salud": -0.67,
+        "ejemplos_clave": [
+          "El bachetón solo sirve para las carreteras federales. ¿Y las calles de Tepic cuándo?",
+          "Geraldine Ponce entregando canchas pero las calles están llenas de baches. Prioridades por favor.",
+          "SIAPA Nayarit por fin hace algo bueno con el amparo ante la CFE. Ojalá no nos quiten la luz de los pozos."
+        ],
+        "keywords": "Auto-detectada"
+      },
+      {
+        "id_narrativa": 3,
+        "volumen": 2,
+        "porcentaje": 13.33,
+        "sentimiento_salud": -0.93,
+        "ejemplos_clave": [
+          "La detención de Galván es una clara persecución política del gobernador Navarro Quintero.",
+          "Geraldine y Galván son la peor administración que ha tenido Tepic. Nepotismo y corrupción total."
+        ],
+        "keywords": "Auto-detectada"
+      },
+      {
+        "id_narrativa": 4,
+        "volumen": 1,
+        "porcentaje": 6.67,
+        "sentimiento_salud": 0.57,
+        "ejemplos_clave": [
+          "Andrea Navarro no es familia del gobernador, ella se ha ganado su lugar con trabajo propio."
+        ],
+        "keywords": "Auto-detectada"
+      }
+    ],
+    {
+      "IDENTIDAD": {
+        "temas": [
+          "Fundadora Morena",
+          "No es familiar del Gob",
+          "UAN / Joven"
+        ],
+        "menciones": 4,
+        "sentimiento_promedio": 0.52
+      },
+      "GESTION": {
+        "temas": [
+          "Bienestar Tepic",
+          "Jóvenes Construyendo Futuro",
+          "Distrito 2"
+        ],
+        "menciones": 0,
+        "sentimiento_promedio": 0
+      },
+      "CONFLICTO": {
+        "temas": [
+          "Policía Feria",
+          "Geraldine vs Gob",
+          "Ataques Ultraderecha"
+        ],
+        "menciones": 1,
+        "sentimiento_promedio": -0.42
+      }
+    }
+  ]
+]

@@ -1,0 +1,38 @@
+{
+  "a2a_version": "1.0",
+  "agent_card_id": "saiel_political_intelligence_agent_card",
+  "meta": {
+    "name": "SAIEL Godel Political Intelligence Agent",
+    "developer": "WAR_ROOM_DEV_TEAM",
+    "version": "2.5",
+    "description": "Exposes electoral sentiment analysis, strategic PDIV calculations and crisis escalations.",
+    "organization": "SAIEL Electoral Intel"
+  },
+  "endpoints": {
+    "a2a_endpoint": "https://godel-agent.tepic.nayarit.saiel.cloud/v1/a2a",
+    "mcp_endpoint": "https://godel-agent.tepic.nayarit.saiel.cloud/v1/mcp"
+  },
+  "capabilities": [
+    "data_collection",
+    "data_ingestion",
+    "pdiv_calculation",
+    "sensemaking",
+    "crisis_detection",
+    "monte_carlo_forecasting"
+  ],
+  "auth": {
+    "type": "OAuth2 / Bearer Token",
+    "scopes": [
+      "saiel:read",
+      "saiel:analyze"
+    ],
+    "restricted_domains": [
+      "saiel.cloud",
+      "nayarit.gob.mx"
+    ]
+  },
+  "rate_limits": {
+    "max_requests_per_min": 100,
+    "max_concurrency": 5
+  }
+}

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nayarit Intelligence Dashboard | War Room 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass: rgba(30, 41, 59, 0.7);
+            --accent-blue: #38bdf8;
+            --accent-purple: #818cf8;
+            --pos: #10b981;
+            --neg: #ef4444;
+            --text: #f1f5f9;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+
+        .header-title h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--pos);
+            color: var(--pos);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .metric-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric-pill {
+            padding: 10px 20px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            flex: 1;
+            text-align: center;
+        }
+
+        .metric-val {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-transform: uppercase;
+        }
+
+        #pdivChart {
+            max-height: 300px;
+        }
+
+        .narrative-item {
+            padding: 15px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.03);
+            margin-bottom: 12px;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .narrative-pos { border-left-color: var(--pos); }
+        .narrative-neg { border-left-color: var(--neg); }
+
+        .narrative-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .narrative-score {
+            font-weight: 700;
+            color: var(--pos);
+        }
+
+        .narrative-neg .narrative-score { color: var(--neg); }
+
+        .narrative-content {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title">
+                <h1>Nayarit Decision Dashboard</h1>
+                <p style="opacity: 0.6;">Corte de Inteligencia: Febrero 17, 2026</p>
+            </div>
+            <div class="status-badge">
+                <span style="width: 10px; height: 10px; background: var(--pos); border-radius: 50%; display: inline-block;"></span>
+                Motor de Inteligencia Operativo
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Posicionamiento General -->
+            <div class="card full-width">
+                <div class="card-title">Matriz de Posicionamiento Digital (Voto Probable)</div>
+                <div style="height: 350px;">
+                    <canvas id="bubbleChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Ficha Técnica Andrea Navarro -->
+            <div class="card">
+                <div class="card-title">
+                    Andrea Navarro
+                    <span style="color: var(--pos); font-size: 0.9rem;">+0.86 Sentimiento</span>
+                </div>
+                <div class="metric-group">
+                    <div class="metric-pill">
+                        <span class="metric-val">21.5%</span>
+                        <span class="metric-label">PDIV Tepic</span>
+                    </div>
+                    <div class="metric-pill">
+                        <span class="metric-val">+5.2%</span>
+                        <span class="metric-label">Crecimiento Sem.</span>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; font-size: 0.9rem; line-height: 1.5; opacity: 0.8;">
+                    <strong>Insight:</strong> El activo más fuerte es la "Legitimidad de Origen". La narrativa de no-parentesco con el gobernador ha neutralizado ataques de nepotismo efectivamente.
+                </p>
+            </div>
+
+            <!-- Narrativas Emergentes (Sensemaker Output) -->
+            <div class="card">
+                <div class="card-title">Narrativas Emergentes (Sensemaker)</div>
+                <div class="narrative-list">
+                    <div class="narrative-item narrative-pos">
+                        <div class="narrative-header">
+                            <strong>#Gestión: Canchas y Ebrard</strong>
+                            <span class="narrative-score">+0.90</span>
+                        </div>
+                        <div class="narrative-content">Comunidad valora la recuperación de espacios en Los Sauces.</div>
+                    </div>
+                    <div class="narrative-item narrative-neg">
+                        <div class="narrative-header">
+                            <strong>#Infraestructura: Baches</strong>
+                            <span class="narrative-score">-0.67</span>
+                        </div>
+                        <div class="narrative-content">Cuestionamiento sobre asfalto federal vs local.</div>
+                    </div>
+                    <div class="narrative-item narrative-neg">
+                        <div class="narrative-header">
+                            <strong>#Ética: Mercedes de Lujo</strong>
+                            <span class="narrative-score">-0.95</span>
+                        </div>
+                        <div class="narrative-content">Contraste fuerte entre desabasto de agua y lujos percibidos.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulación de los datos de nuestra matriz_tepic_real.json
+        const ctx = document.getElementById('bubbleChart').getContext('2d');
+        const bubbleChart = new Chart(ctx, {
+            type: 'bubble',
+            data: {
+                datasets: [
+                    {
+                        label: 'Andrea Navarro',
+                        data: [{ x: 0.86, y: 21.5, r: 15 }],
+                        backgroundColor: 'rgba(56, 189, 248, 0.5)',
+                        borderColor: '#38bdf8',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Geraldine Ponce',
+                        data: [{ x: -0.45, y: 23.2, r: 25 }],
+                        backgroundColor: 'rgba(129, 140, 248, 0.5)',
+                        borderColor: '#818cf8',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Héctor Santana',
+                        data: [{ x: 0.62, y: 18.0, r: 12 }],
+                        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                        borderColor: '#10b981',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Beatriz Estrada',
+                        data: [{ x: 0.81, y: 29.5, r: 20 }],
+                        backgroundColor: 'rgba(245, 158, 11, 0.5)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Sentimiento (Negativo a Positivo)', color: '#fff' },
+                        min: -1, max: 1, grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Voto Probable (PDIV %)', color: '#fff' },
+                        min: 0, max: 40, grid: { color: 'rgba(255,255,255,0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#fff', font: { family: 'Outfit' } } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

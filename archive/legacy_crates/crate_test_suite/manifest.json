@@ -1,0 +1,17 @@
+{
+    "identity": {
+        "crate_id": "saiel.test_suite",
+        "version": "1.0",
+        "conceptual_zone": "Calidad y Validación"
+    },
+    "governance": {
+        "task": "automated_pipeline_validation",
+        "verdicts": ["PASS", "FAIL"],
+        "coverage": ["anonymization", "parsing", "normalization", "correlation"]
+    },
+    "dependencies": ["pandas", "pytest", "tempfile", "shutil"],
+    "schema": {
+        "input": "Mock PII Data",
+        "output": "Test Report (JSON)"
+    }
+}

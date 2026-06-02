@@ -1,0 +1,7 @@
+pandas
+numpy
+scikit-learn
+sentence-transformers
+pysentimiento
+apify-client
+python-dotenv

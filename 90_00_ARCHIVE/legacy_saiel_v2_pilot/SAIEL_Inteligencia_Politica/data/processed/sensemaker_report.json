@@ -1,0 +1,29 @@
+{
+    "IDENTIDAD": {
+        "temas": [
+            "Fundadora Morena",
+            "No es familiar del Gob",
+            "UAN / Joven"
+        ],
+        "menciones": 4,
+        "sentimiento_promedio": 0.52
+    },
+    "GESTION": {
+        "temas": [
+            "Bienestar Tepic",
+            "Jóvenes Construyendo Futuro",
+            "Distrito 2"
+        ],
+        "menciones": 0,
+        "sentimiento_promedio": 0
+    },
+    "CONFLICTO": {
+        "temas": [
+            "Policía Feria",
+            "Geraldine vs Gob",
+            "Ataques Ultraderecha"
+        ],
+        "menciones": 1,
+        "sentimiento_promedio": -0.42
+    }
+}

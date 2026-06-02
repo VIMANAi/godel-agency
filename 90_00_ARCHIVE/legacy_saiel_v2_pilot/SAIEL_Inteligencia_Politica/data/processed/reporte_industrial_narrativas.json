@@ -1,0 +1,61 @@
+[
+    {
+        "id_narrativa": 0,
+        "volumen": 6,
+        "porcentaje": 12.0,
+        "sentimiento_salud": 0.55,
+        "ejemplos_clave": [
+            "Muy bien por la alcaldesa gestionando apoyos con Marcelo Ebrard para nuestra ciudad.",
+            "Orgullosa de nuestra diputada Andrea Navarro, la más votada y siempre firme con la 4T.",
+            "La detención de Galván es una clara persecución política del gobernador Navarro Quintero."
+        ],
+        "keywords": "Auto-detectada"
+    },
+    {
+        "id_narrativa": 1,
+        "volumen": 14,
+        "porcentaje": 28.0,
+        "sentimiento_salud": -0.68,
+        "ejemplos_clave": [
+            "¿No que TODO LO POLÍTICO sólo era por FB?🤔",
+            "Pésimo, ya estás igual que todos los demás políticos",
+            "Pésimo, ya estás igual que todos los demás políticos"
+        ],
+        "keywords": "Auto-detectada"
+    },
+    {
+        "id_narrativa": 2,
+        "volumen": 22,
+        "porcentaje": 44.0,
+        "sentimiento_salud": 0.43,
+        "ejemplos_clave": [
+            "😍",
+            "😍😍😍😍",
+            "👏👏🔥❤️"
+        ],
+        "keywords": "Auto-detectada"
+    },
+    {
+        "id_narrativa": 3,
+        "volumen": 2,
+        "porcentaje": 4.0,
+        "sentimiento_salud": 0.39,
+        "ejemplos_clave": [
+            "i'm ready para el cambio ❤️💯🔥🎉👏",
+            "i'm ready para el cambio ❤️💯🔥🎉👏"
+        ],
+        "keywords": "Auto-detectada"
+    },
+    {
+        "id_narrativa": 4,
+        "volumen": 6,
+        "porcentaje": 12.0,
+        "sentimiento_salud": 0.46,
+        "ejemplos_clave": [
+            "Bella",
+            "Preciosa 😍😍😍",
+            "Wow beautiful 🌹"
+        ],
+        "keywords": "Auto-detectada"
+    }
+]

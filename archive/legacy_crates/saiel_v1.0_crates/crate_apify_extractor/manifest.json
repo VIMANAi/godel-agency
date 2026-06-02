@@ -1,0 +1,17 @@
+{
+    "identity": {
+        "crate_id": "saiel.apify_extractor",
+        "version": "1.0",
+        "conceptual_zone": "Ingesta de Datos"
+    },
+    "governance": {
+        "task": "social_media_scraping",
+        "adapter": "ApifyClient",
+        "cloud_target": "Cloud Run"
+    },
+    "dependencies": ["apify-client", "pydantic", "google-cloud-storage"],
+    "schema": {
+        "input": ["target_url", "platform", "limit"],
+        "output": ["source", "user", "text", "likes", "timestamp"]
+    }
+}

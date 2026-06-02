@@ -1,0 +1,26 @@
+[
+    {
+        "nombre": "Beatriz Estrada",
+        "eje_x_percepcion": 0.85,
+        "eje_y_posicionamiento": 90,
+        "categoria": "Tepic"
+    },
+    {
+        "nombre": "Andrea Navarro",
+        "eje_x_percepcion": 0.42,
+        "eje_y_posicionamiento": 75,
+        "categoria": "Tepic"
+    },
+    {
+        "nombre": "Adahán Casas",
+        "eje_x_percepcion": 0.35,
+        "eje_y_posicionamiento": 70,
+        "categoria": "Tepic"
+    },
+    {
+        "nombre": "Alejandro Galván",
+        "eje_x_percepcion": -0.68,
+        "eje_y_posicionamiento": 88,
+        "categoria": "Tepic"
+    }
+]

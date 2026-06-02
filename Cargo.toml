@@ -1,0 +1,11 @@
+[package]
+name = "godel-agency"
+version = "2.0.0"
+edition = "2021"
+authors = ["fratfn"]
+description = "Godel — Sistema de Análisis de Inteligencia Electoral Local. Framework de Inteligencia Electoral Local (FIEL)."
+readme = "README.md"
+license = "Apache-2.0"
+
+[dependencies]
+# Reservado para futuros módulos nativos de análisis en Rust.

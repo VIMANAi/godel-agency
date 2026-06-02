@@ -1,0 +1,69 @@
+# ============================================================
+# Vigil — Configuración maestra activa
+# Para cambiar de demarcación, crea un nuevo archivo en
+# config/templates/ y actualiza los valores aquí.
+# NUNCA hardcodees claves — usa variables de entorno (.env).
+# ============================================================
+
+metadata:
+  nombre_proyecto: "Sistema de Análisis Electoral e Inteligencia Local"
+  region: "Tepic, Nayarit"
+  periodo_eleccion: "2026"
+  version_vigil: "1.0.0"
+  fecha_inicio_auditoria: "2026-06-01"
+
+candidatos:
+  - nombre: "Beatriz Estrada"
+    partido: "Morena-PT-PVEM"
+    aliases: ["beatriz", "dif", "difnay", "dif nayarit"]
+    handles: ["DIFNay"]
+  - nombre: "Geraldine Ponce"
+    partido: "Morena-PT-PVEM"
+    aliases: ["geraldine", "ponce", "geraldine ponce"]
+    handles: ["GeraldinePonceMexico"]
+  - nombre: "Andrea Navarro"
+    partido: "Movimiento Ciudadano"
+    aliases: ["andrea", "navarro", "andrea navarro"]
+    handles: ["AndreaNavarroDistrito2"]
+  - nombre: "Adahán Casas"
+    partido: "PRI-PAN-PRD"
+    aliases: ["adahan", "adahan casas"]
+    handles: ["AdahanCasasOficial"]
+  - nombre: "Alejandro Galván"
+    partido: "Morena-PT-PVEM"
+    aliases: ["galvan", "alejandro galvan"]
+    handles: ["AlejandroGalvanNayarit"]
+
+fuentes_monitoreo:
+  paginas_facebook:
+    - "DIFNay"
+    - "GeraldinePonceMexico"
+    - "AndreaNavarroDistrito2"
+    - "AdahanCasasOficial"
+    - "AlejandroGalvanNayarit"
+  cuentas_twitter: []
+  medios_locales: []
+
+catalogo_seguidores:
+  DIFNay: 52000
+  GeraldinePonceMexico: 125000
+  AndreaNavarroDistrito2: 15000
+  AdahanCasasOficial: 38000
+  AlejandroGalvanNayarit: 42000
+
+pipeline_settings:
+  ventana_analisis_dias: 7
+  threshold_sincronia: 0.85
+  min_seguidores_activo: 500
+  min_comentarios_nlp: 50
+  modelo_ia: "gemini-2.5-flash"
+  temperatura_nlp: 0.1
+  contamination_rate: 0.05       # Tasa de contaminación estimada para Isolation Forest (5%)
+
+knowledge_base:
+  ruta_documentos: "./data/knowledge_base/"
+  idioma_reporte: "es"
+
+mcp_toolbox:
+  enabled: false
+  server_url: "http://127.0.0.1:5000/mcp/vigil-electoral"

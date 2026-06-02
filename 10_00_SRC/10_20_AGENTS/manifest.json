@@ -1,0 +1,52 @@
+{
+  "agent_id": "saiel_political_intelligence_agent",
+  "version": "2.5",
+  "name": "SAIEL Agent",
+  "description": "Political intelligence and electoral analysis agent for Tepic, Nayarit.",
+  "engine": {
+    "provider": "openrouter",
+    "default_model": "google/gemma-2-9b-it:free",
+    "fallback_model": "deepseek-r1:7b",
+    "api_env_key": "OPENROUTER_API_KEY"
+  },
+  "capabilities": [
+    "data_collection",
+    "data_ingestion",
+    "pdiv_calculation",
+    "sensemaking",
+    "crisis_detection",
+    "monte_carlo_forecasting"
+  ],
+  "tools": [
+    {
+      "name": "collect_data",
+      "module": "src.collectors.social_collector",
+      "class": "SocialCollector",
+      "description": "Collects social media posts and comments for a candidate in Tepic using Playwright or Apify."
+    },
+    {
+      "name": "ingest_data",
+      "module": "src.core.data_ingestion",
+      "class": "DataIngestionPipeline",
+      "description": "Validates, cleans, normalizes, and anonymizes raw collected comments (compliance CURP/INE)."
+    },
+    {
+      "name": "calculate_pdiv",
+      "module": "src.core.pdiv_calculator",
+      "class": "PDIVCalculator",
+      "description": "Orchestrates the calculation of modular P, D, I, and V components and generates the strategic matrix."
+    },
+    {
+      "name": "discover_narratives",
+      "module": "src.core.sensemaker_engine",
+      "class": "SensemakerEngine",
+      "description": "Clusters text using DBSCAN to discover key conversational themes and debate narratives."
+    }
+  ],
+  "configuration": {
+    "local_bunker_mode": true,
+    "sqlite_database_path": "data/db/saiel_local.db",
+    "default_region": "tepic",
+    "historical_baseline_year": 2021
+  }
+}

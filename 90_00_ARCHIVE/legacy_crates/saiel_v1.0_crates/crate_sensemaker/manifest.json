@@ -1,0 +1,17 @@
+{
+    "identity": {
+        "crate_id": "saiel.sensemaker",
+        "version": "2.0",
+        "conceptual_zone": "Inteligencia Semántica",
+        "heritage": "Adapted from sensemaking-tools (approx 70% core logic)"
+    },
+    "governance": {
+        "task": "narrative_discovery",
+        "llm_sentiment": "pysentimiento",
+        "clustering": "KMeans (Scikit-Learn)"
+    },
+    "technical_specs": {
+        "embeddings": "paraphrase-multilingual-MiniLM-L12-v2",
+        "local_processing": true
+    }
+}
