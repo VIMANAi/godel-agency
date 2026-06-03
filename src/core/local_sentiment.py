@@ -66,7 +66,7 @@ Datos: {datos}
 
 Dame exactamente:
 1. **SALUD DIGITAL** (porcentaje positivo/negativo/neutro)
-2. **TOP 3 TEMAS** que más preocupan a la ciudadanía  
+2. **TOP 3 TEMAS** que más preocupan a la ciudadanía
 3. **ALERTA DE CRISIS** (si sentimiento negativo > 60%)
 4. **RECOMENDACIÓN TÁCTICA** (1 acción concreta para esta semana)
 
@@ -96,7 +96,16 @@ def verificar_ollama(modelo: str) -> bool:
 
 
 def cargar_comentarios(ruta: str) -> list:
-    """Carga comentarios en múltiples formatos."""
+    """
+    Carga comentarios en múltiples formatos.
+    Soporta JSON tradicional y NDJSON (línea por línea).
+
+    Args:
+        ruta (str): La ruta al archivo de comentarios.
+
+    Returns:
+        list: Lista de diccionarios con el texto original, fuente y fecha.
+    """
     ruta_path = Path(ruta)
     if not ruta_path.is_absolute():
         ruta_path = BASE_DIR / ruta
@@ -147,8 +156,21 @@ def cargar_comentarios(ruta: str) -> list:
 
 
 def analizar_lote_local(modelo: str, lote: list) -> list:
-    """Analiza un lote de comentarios con el LLM local."""
-    import ollama
+    """
+    Analiza un lote de comentarios con el LLM local.
+
+    Args:
+        modelo (str): Modelo en Ollama.
+        lote (list): Lista de diccionarios de comentarios.
+
+    Returns:
+        list: Lista con el análisis estructurado.
+    """
+    try:
+        import ollama
+    except ImportError:
+        print("❌ Librería 'ollama' no instalada. No se puede analizar.")
+        return []
 
     textos = [f"{i+1}. {c['texto_original']}" for i, c in enumerate(lote)]
     prompt = PROMPT_SENTIMIENTO.format(comentarios="\n".join(textos))
@@ -235,7 +257,7 @@ def guardar_resultados(resultados: list, ruta_output: Path):
     sentimientos = {}
     temas = {}
     bots = sum(1 for r in resultados if r.get("es_bot", False))
-    
+
     for r in resultados:
         s = r.get("sentimiento", "neutro")
         t = r.get("tema", "?")
@@ -277,8 +299,7 @@ def main():
 
     # Verificar Ollama
     if not verificar_ollama(args.model):
-        sys.exit(1)
-
+        raise SystemExit(1)
     # Cargar datos
     comentarios = cargar_comentarios(args.input)
     if not comentarios:

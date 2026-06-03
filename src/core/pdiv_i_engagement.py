@@ -10,7 +10,11 @@ Versión: 2.1 (Decoupled SoC)
 
 import pandas as pd
 import numpy as np
+import polars as pl
 from typing import Dict, List, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 class IEngagementModule:
     """
@@ -60,47 +64,82 @@ class IEngagementModule:
     def calculate_engagement_score(self, df: pd.DataFrame) -> pd.Series:
         """
         Calcula el score de engagement por candidato.
+        Utiliza Polars para optimización de rendimiento a través de pipelines paralelizables.
         
-        Corrección Crítica de Crash en Pandas:
-        - En lugar de usar groupby().apply(lambda x: (x.get('likes') + ...)) que causaba errores
-          si faltaban columnas o si se retornaban tipos incompatibles, se realiza
-          una agregación vectorizada a nivel de fila y luego agrupamiento directo.
+        Args:
+            df (pd.DataFrame): DataFrame de Pandas con la información de las redes.
+
+        Returns:
+            pd.Series: Serie con el score de engagement normalizado por candidato.
         """
         if df.empty:
             return pd.Series(dtype=float)
             
-        # 1. Asegurar la presencia de columnas de interacciones y sanitizar nulos
-        likes = pd.to_numeric(df['likes'], errors='coerce').fillna(0).astype(int) if 'likes' in df.columns else pd.Series(0, index=df.index)
-        shares = pd.to_numeric(df['shares'], errors='coerce').fillna(0).astype(int) if 'shares' in df.columns else pd.Series(0, index=df.index)
-        comments = pd.to_numeric(df['comments'], errors='coerce').fillna(0).astype(int) if 'comments' in df.columns else pd.Series(0, index=df.index)
-        
-        # 2. Calcular interacciones brutas (vectorizado)
-        df['temp_interactions'] = likes + shares + comments
-        
-        # 3. Ponderar por canal (vectorizado)
-        if 'source' in df.columns:
-            # Mapear fuentes a sus coeficientes
-            source_mapped = df['source'].str.lower().map(self.source_weights).fillna(self.source_weights['default'])
-            df['temp_weighted_interactions'] = df['temp_interactions'] * source_mapped
-        else:
-            df['temp_weighted_interactions'] = df['temp_interactions'] * self.source_weights['default']
+        try:
+            # 0. Limpiar columnas en Pandas antes de pasar a Polars porque pyarrow crashea al convertir tipos mixtos
+            df_clean = df.copy()
+            cols_to_check = ['likes', 'shares', 'comments']
+            for col in cols_to_check:
+                if col not in df_clean.columns:
+                    df_clean[col] = 0
+                else:
+                    # Coerción segura en pandas para que no falle la conversión a arrow
+                    df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce').fillna(0).astype(int)
+
+            # 1. Convertir a Polars para procesamiento eficiente
+            lf = pl.from_pandas(df_clean).lazy()
             
-        # 4. Agrupar por candidato y sumar
-        engagement_weighted = df.groupby('candidato')['temp_weighted_interactions'].sum()
-        
-        # 5. Transformación Logarítmica Robusta
-        # Atenúa enormemente el impacto de posts virales atípicos (outliers de 100k likes)
-        # permitiendo que la comparación de engagement sea equitativa para candidatos medianos.
-        engagement_log = np.log1p(engagement_weighted)
-        
-        # 6. Normalizar a la escala 0-100 usando IQR
-        engagement_normalized = self._robust_min_max_normalize(engagement_log)
-        
-        # Limpieza de columnas temporales para evitar efectos colaterales
-        if 'temp_interactions' in df.columns:
-            df.drop(columns=['temp_interactions', 'temp_weighted_interactions'], inplace=True, errors='ignore')
+            # 1. Calcular interacciones brutas
+            lf = lf.with_columns(
+                (pl.col("likes") + pl.col("shares") + pl.col("comments")).alias("temp_interactions")
+            )
+
+            # 2. Ponderar por canal
+            if "source" in df.columns:
+                # Crear un mapeo usando un dataframe auxiliar de Polars
+                source_df = pl.DataFrame({
+                    "source_lower": list(self.source_weights.keys()),
+                    "weight": list(self.source_weights.values())
+                }).lazy()
+
+                # Normalizar la columna source
+                lf = lf.with_columns(pl.col("source").cast(pl.String).str.to_lowercase().alias("source_lower"))
+
+                # Unir para obtener los pesos
+                lf = lf.join(source_df, on="source_lower", how="left")
+
+                # Si el peso es nulo, usar el default, y multiplicar por interacciones
+                lf = lf.with_columns(
+                    (pl.col("temp_interactions") * pl.col("weight").fill_null(self.source_weights['default'])).alias("temp_weighted_interactions")
+                )
+
+            else:
+                lf = lf.with_columns(
+                    (pl.col("temp_interactions") * self.source_weights['default']).alias("temp_weighted_interactions")
+                )
+
+            # 3. Agrupar por candidato y sumar
+            agg_df = lf.group_by("candidato").agg(
+                pl.col("temp_weighted_interactions").sum().alias("total_engagement")
+            ).collect()
+
+            # Convertir de vuelta a pandas para seguir con las interfaces existentes
+            engagement_weighted = pd.Series(
+                agg_df["total_engagement"].to_numpy(),
+                index=agg_df["candidato"].to_numpy()
+            )
+
+            # 4. Transformación Logarítmica Robusta
+            engagement_log = np.log1p(engagement_weighted)
             
-        return engagement_normalized.clip(0.0, 100.0)
+            # 5. Normalizar a la escala 0-100 usando IQR
+            engagement_normalized = self._robust_min_max_normalize(engagement_log)
+
+            return engagement_normalized.clip(0.0, 100.0)
+
+        except Exception as e:
+            logger.exception(f"Error en el cálculo de engagement (Polars): {e}")
+            return pd.Series(dtype=float)
 
 if __name__ == "__main__":
     # Test de verificación del cálculo del engagement
