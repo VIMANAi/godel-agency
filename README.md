@@ -47,7 +47,7 @@ Para acelerar el desarrollo colaborativo y guiar el comportamiento autónomo de 
 
 ---
 
-## 📋 Requisitos Previos (Prerequisites)
+## 📋 Requisitos Previos
 
 *   **Python**: 3.10 o superior.
 *   **Gestor de paquetes**: Recomendamos usar `uv` o `pip`.
@@ -60,12 +60,12 @@ Para acelerar el desarrollo colaborativo y guiar el comportamiento autónomo de 
 
 ```bash
 # 1. Clonar el repositorio y configurar el entorno
-git clone <repo> && cd Agency
+git clone <repo> Agency && cd Agency
 cp .env.example .env   # Editar con tus credenciales reales (API keys, etc.)
 
 # 2. Crear entorno virtual e instalar dependencias
 python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+source venv/bin/activate  # En Windows: venv\\Scripts\\activate (PowerShell: .\\venv\\Scripts\\Activate.ps1)
 pip install -r requirements.txt  # O usando uv: uv pip install -r requirements.txt
 
 # 3. Ejecución del orquestador:
@@ -100,7 +100,7 @@ python src/agents/test_agent_security.py
 
 ---
 
-## 🤝 Cómo Contribuir (Contributing)
+## 🤝 Cómo Contribuir
 
 Para nuevos desarrolladores y colaboradores, por favor sigue este flujo de trabajo:
 1. Revisa los **Manuales Cognitivos** (`agent.md`) ubicados en cada subdirectorio (`src/agents`, `src/core`, `src/collectors`) para entender las reglas, estándares y arquitectura de esa sección específica.
