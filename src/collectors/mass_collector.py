@@ -8,8 +8,6 @@ import logging
 # Token de Apify
 APIFY_TOKEN = os.getenv("APIFY_TOKEN", "[REDACTED_FROM_ENV]")
 
-# Configuración básica de logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class MassCollector:
