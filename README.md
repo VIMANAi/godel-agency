@@ -3,13 +3,13 @@
 **Versión Activa:** `2.0` | **Estado:** Producción | **Última Refactorización:** 2026-05-31  
 **Compliance:** LGPDPPSO · GDPR · Berkeley Protocol · EU AI Act
 
-Sistema de war room digital de análisis político multicanal con motor de orquestación dual y soporte para agentes autónomos seguros.
+Sistema de war room digital de análisis político multicanal con motor de orquestación dual y soporte para agentes autónomos seguros. El flujo principal se basa en la **Recolección (Scrapers OSINT)**, **Análisis (ETL, Sentimiento, PDIV)**, y **Generación de Reportes**.
 
 ---
 
 ## 📐 Arquitectura del Proyecto
 
-```
+```text
 Agency/
 ├── src/
 │   ├── core/          # Motores analíticos ETL (pipeline PDIV, sentimiento, sensemaker)
@@ -47,45 +47,70 @@ Para acelerar el desarrollo colaborativo y guiar el comportamiento autónomo de 
 
 ---
 
+## 📋 Requisitos Previos (Prerequisites)
+
+*   **Python**: 3.10 o superior.
+*   **Gestor de paquetes**: Recomendamos usar `uv` o `pip`.
+*   **Ollama**: (Opcional) Requerido si planeas usar el Modo Clásico localmente.
+*   **Credenciales**: Es necesario contar con los tokens para herramientas externas (Ej: Apify para recolección de datos, API keys para LLMs).
+
+---
+
 ## 🚀 Inicio Rápido
 
 ```bash
-# 1. Clonar y configurar el entorno
+# 1. Clonar el repositorio y configurar el entorno
 git clone <repo> && cd Agency
-cp .env.example .env   # Editar con tus credenciales reales
+cp .env.example .env   # Editar con tus credenciales reales (API keys, etc.)
 
-# 2. Configurar el entorno virtual e instalar dependencias con uv
-/home/fratfn/.local/bin/uv pip install -r requirements.txt --python /home/fratfn/vertex_env
+# 2. Crear entorno virtual e instalar dependencias
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+pip install -r requirements.txt  # O usando uv: uv pip install -r requirements.txt
+
+# 3. Ejecución del orquestador:
 
 # 3a. Modo SDK Avanzado (Google Antigravity + secure-mcp + Bucle Premium)
 # Te da streaming en tiempo real del Thinking Process y políticas interactivas de seguridad.
-/home/fratfn/vertex_env/bin/python src/agents/godel_agent.py --sdk
+python src/agents/godel_agent.py --sdk
 
-# 3b. Modo Background Silencioso (Segunda plano sin interfaz de terminal)
-/home/fratfn/vertex_env/bin/python src/agents/godel_agent.py --background
+# 3b. Modo Background Silencioso (Segundo plano sin interfaz de terminal)
+# Útil para ejecuciones programadas o servicios que no requieren interacción humana.
+python src/agents/godel_agent.py --background
 
 # 3c. Modo Clásico (Ollama Local / Reglas Sincrónicas)
-/home/fratfn/vertex_env/bin/python src/agents/godel_agent.py
+# Requiere que el servicio de Ollama esté ejecutándose.
+python src/agents/godel_agent.py
 
 # 4. Ejecutar suite de pruebas de seguridad
-/home/fratfn/vertex_env/bin/python src/agents/test_agent_security.py
+python src/agents/test_agent_security.py
 ```
 
 ---
 
 ## 🔒 Modos de Operación (Consola / SDK)
 
-| Característica | Modo SDK Avanzado (`--sdk`) | Modo Clásico |
-|---|---|---|
-| **Motor de Orquestación** | Google Antigravity SDK | Reglas / Ollama (DeepSeek-R1) |
-| **Bucle de Terminal** | REPL asíncrono premium con streaming de pensamiento | Bucle clásico de entrada de consola |
-| **Herramientas Externas** | secure-mcp (Perplexity Search, HF, fetch) | Solo herramientas locales de Python |
-| **Seguridad Activa** | Hooks interactivos que detallan objetivos del agente | Ejecución silenciosa libre |
-| **Consumo de RAM** | <65 MB de RAM (Conexión stdio ultra-ligera) | >150 MB de RAM (Ollama local activo) |
+| Característica | Modo SDK Avanzado (`--sdk`) | Modo Background (`--background`) | Modo Clásico (Sin flags) |
+|---|---|---|---|
+| **Motor de Orquestación** | Google Antigravity SDK | Google Antigravity SDK | Reglas / Ollama (DeepSeek-R1) |
+| **Bucle de Terminal** | REPL asíncrono premium con streaming de pensamiento | Ninguno (Ejecución silenciosa) | Bucle clásico de entrada de consola |
+| **Herramientas Externas** | secure-mcp (Perplexity Search, HF, fetch) | secure-mcp | Solo herramientas locales de Python |
+| **Seguridad Activa** | Hooks interactivos que detallan objetivos del agente | Políticas pre-aprobadas o logs de auditoría | Ejecución libre / restringida por reglas |
+| **Consumo de RAM** | <65 MB de RAM (Conexión stdio ultra-ligera) | <65 MB de RAM | >150 MB de RAM + VRAM (Ollama local activo) |
 
 ---
 
-## 📚 Documentación
+## 🤝 Cómo Contribuir (Contributing)
+
+Para nuevos desarrolladores y colaboradores, por favor sigue este flujo de trabajo:
+1. Revisa los **Manuales Cognitivos** (`agent.md`) ubicados en cada subdirectorio (`src/agents`, `src/core`, `src/collectors`) para entender las reglas, estándares y arquitectura de esa sección específica.
+2. Asegúrate de configurar correctamente tu entorno virtual y el archivo `.env`.
+3. Ejecuta las pruebas de seguridad con `python src/agents/test_agent_security.py` antes de realizar un commit para asegurar el cumplimiento (compliance).
+4. Consulta nuestra [Gobernanza Técnica y Auditoría](docs/governance/ESTANDAR_DUAL_LOCAL_CLOUD.md) para más detalles.
+
+---
+
+## 📚 Documentación Adicional
 
 - [Estándar Dual Local/Cloud](docs/governance/ESTANDAR_DUAL_LOCAL_CLOUD.md)
 - [Manual Técnico Operativo](docs/manuals/INSTRUCCIONES_TECNICAS.md)
