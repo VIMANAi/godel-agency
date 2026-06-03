@@ -98,7 +98,7 @@ class IEngagementModule:
             if "source" in df.columns:
                 # Crear un mapeo usando un dataframe auxiliar de Polars
                 source_df = pl.DataFrame({
-                    "source": list(self.source_weights.keys()),
+                    "source_lower": list(self.source_weights.keys()),
                     "weight": list(self.source_weights.values())
                 }).lazy()
 
@@ -106,12 +106,12 @@ class IEngagementModule:
                 lf = lf.with_columns(pl.col("source").cast(pl.String).str.to_lowercase().alias("source_lower"))
 
                 # Unir para obtener los pesos
-                lf = lf.join(source_df, left_on="source_lower", right_on="source", how="left")
+                lf = lf.join(source_df, on="source_lower", how="left")
 
                 # Si el peso es nulo, usar el default, y multiplicar por interacciones
                 lf = lf.with_columns(
-                    pl.col("temp_interactions") * pl.col("weight").fill_null(self.source_weights['default'])
-                ).rename({"temp_interactions": "temp_weighted_interactions"})
+                    (pl.col("temp_interactions") * pl.col("weight").fill_null(self.source_weights['default'])).alias("temp_weighted_interactions")
+                )
 
             else:
                 lf = lf.with_columns(
