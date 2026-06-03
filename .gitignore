@@ -98,3 +98,4 @@ archive/session_snapshots/*
 
 # --- 📁 Large PDF document at root
 FacebookPagesandMexicanPrecampaigns _ Dmi _ Foswiki.pdf
+__pycache__/

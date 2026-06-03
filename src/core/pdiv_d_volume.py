@@ -10,8 +10,12 @@ Versión: 2.1 (Decoupled SoC)
 
 import pandas as pd
 import numpy as np
+import polars as pl
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DVolumeModule:
     """
@@ -62,46 +66,69 @@ class DVolumeModule:
         """
         Calcula una penalización estadística para cada candidato basada en el comportamiento
         de sus cuentas y comentarios en busca de bots/trolls.
+        Implementado con Polars para mayor eficiencia.
         Retorna una serie con penalizaciones entre 0.0 (sin bots) y 0.8 (alta sospecha de bots).
         """
-        candidates = df['candidato'].unique()
-        penalties = {}
-        
-        for candidate in candidates:
-            c_df = df[df['candidato'] == candidate]
-            total_records = len(c_df)
-            if total_records == 0:
-                penalties[candidate] = 0.0
-                continue
+        if df.empty or 'candidato' not in df.columns:
+            return pd.Series(dtype=float)
+
+        try:
+            # Preparar datos limpiando tipos mixtos si hay likes
+            df_clean = df.copy()
+            if 'likes' in df_clean.columns:
+                df_clean['likes'] = pd.to_numeric(df_clean['likes'], errors='coerce').fillna(0).astype(int)
+            else:
+                df_clean['likes'] = 0
+
+            # Pasar a Polars
+            lf = pl.from_pandas(df_clean).lazy()
+
+            # 1. Calcular total de records por candidato
+            total_records = lf.group_by("candidato").agg(pl.len().alias("total_records"))
+
+            # 2. Penalización por usuario (Ataque Sybil)
+            if 'user' in df_clean.columns:
+                user_counts = lf.group_by(["candidato", "user"]).agg(pl.len().alias("user_count"))
+                spam_users = user_counts.filter(pl.col("user_count") > self.bot_thresholds['max_comments_per_user'])
+                spam_user_volume = spam_users.group_by("candidato").agg(pl.col("user_count").sum().alias("spam_user_volume"))
+            else:
+                spam_user_volume = lf.select("candidato").unique().with_columns(pl.lit(0).alias("spam_user_volume"))
+
+            # 3. Penalización por textos de spam idénticos
+            if 'text' in df_clean.columns:
+                text_counts = lf.group_by(["candidato", "text"]).agg(pl.len().alias("text_count"))
+                spam_texts = text_counts.filter(pl.col("text_count") > self.bot_thresholds['spam_duplicate_threshold'])
+                spam_text_volume = spam_texts.group_by("candidato").agg(pl.col("text_count").sum().alias("spam_text_volume"))
+            else:
+                spam_text_volume = lf.select("candidato").unique().with_columns(pl.lit(0).alias("spam_text_volume"))
                 
-            penalty = 0.0
+            # 4. Likes anormalmente altos
+            high_likes = lf.filter(pl.col("likes") > self.bot_thresholds['max_likes_per_post'])
+            high_likes_volume = high_likes.group_by("candidato").agg(pl.len().alias("high_likes_count"))
+
+            # Consolidar penalizaciones
+            penalties_lf = total_records.join(spam_user_volume, on="candidato", how="left").fill_null(0)
+            penalties_lf = penalties_lf.join(spam_text_volume, on="candidato", how="left").fill_null(0)
+            penalties_lf = penalties_lf.join(high_likes_volume, on="candidato", how="left").fill_null(0)
+
+            penalties_lf = penalties_lf.with_columns(
+                penalty=(
+                    (pl.col("spam_user_volume") / pl.col("total_records") * 0.4) +
+                    (pl.col("spam_text_volume") / pl.col("total_records") * 0.3) +
+                    (pl.col("high_likes_count") / pl.col("total_records") * 0.1)
+                ).clip(0.0, 0.8)
+            )
+
+            penalties_df = penalties_lf.collect()
             
-            # 1. Comportamiento por usuario (Ataque Sybil / Astroturfing)
-            if 'user' in c_df.columns:
-                user_counts = c_df['user'].value_counts()
-                suspicious_users = user_counts[user_counts > self.bot_thresholds['max_comments_per_user']]
-                if not suspicious_users.empty:
-                    # Penalización proporcional al volumen inyectado por usuarios sospechosos
-                    spam_user_volume = suspicious_users.sum()
-                    penalty += (spam_user_volume / total_records) * 0.4
-                    
-            # 2. Textos de spam idénticos (Granjas de bots con copypaste)
-            if 'text' in c_df.columns:
-                text_counts = c_df['text'].value_counts()
-                spam_texts = text_counts[text_counts > self.bot_thresholds['spam_duplicate_threshold']]
-                if not spam_texts.empty:
-                    spam_text_volume = spam_texts.sum()
-                    penalty += (spam_text_volume / total_records) * 0.3
-                    
-            # 3. Likes anormalmente altos
-            if 'likes' in c_df.columns:
-                high_likes_posts = c_df[c_df['likes'] > self.bot_thresholds['max_likes_per_post']]
-                if not high_likes_posts.empty:
-                    penalty += (len(high_likes_posts) / total_records) * 0.1
-                    
-            penalties[candidate] = float(np.clip(penalty, 0.0, 0.8))
+            return pd.Series(
+                penalties_df["penalty"].to_numpy(),
+                index=penalties_df["candidato"].to_numpy()
+            )
             
-        return pd.Series(penalties)
+        except Exception as e:
+            logger.exception(f"Error en el cálculo de penalizaciones por bot (Polars): {e}")
+            return pd.Series({c: 0.0 for c in df['candidato'].unique()})
 
     def _robust_min_max_normalize(self, series: pd.Series) -> pd.Series:
         """
