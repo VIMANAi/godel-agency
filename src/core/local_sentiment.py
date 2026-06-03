@@ -299,8 +299,7 @@ def main():
 
     # Verificar Ollama
     if not verificar_ollama(args.model):
-        sys.exit(1)
-
+        raise SystemExit(1)
     # Cargar datos
     comentarios = cargar_comentarios(args.input)
     if not comentarios:

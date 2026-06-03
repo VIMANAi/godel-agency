@@ -16,6 +16,8 @@ class MassCollector:
     usando la API de Apify.
     """
     def __init__(self) -> None:
+        if not APIFY_TOKEN or "REDACTED" in APIFY_TOKEN or "TU_TOKEN" in APIFY_TOKEN:
+            raise ValueError("APIFY_TOKEN no configurado. Configura la variable de entorno APIFY_TOKEN.")
         self.client = ApifyClient(APIFY_TOKEN)
 
     def collect_from_post(self, post_url: str, limit: int = 20) -> List[Dict[str, Any]]:
