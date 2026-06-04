@@ -75,26 +75,26 @@ JSONL_PATH = Path("data/raw/dataset_facebook-comments-scraper_2026-02-20_18-34-3
 def migrate_jsonl_to_sqlite():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
+
     # Asegurar esquema
     with open("data/db/schema.sql", "r") as f:
         cursor.executescript(f.read())
-        
+
     print(f"Migrando datos desde {JSONL_PATH.name}...")
-    
+
     count = 0
     with open(JSONL_PATH, "r", encoding="utf-8") as f:
         for line in f:
             if not line.strip():
                 continue
             item = json.loads(line)
-            
+
             # Estandarizar
             record_id = item.get("id", item.get("node_id", f"hash_{count}"))
             text = item.get("text", item.get("commentText", item.get("message", "")))
             if not text:
                 continue
-                
+
             cursor.execute("""
                 INSERT OR IGNORE INTO comentarios (id, source, text, user, likes, date, collected_at, anonymized)
                 VALUES (?, ?, ?, ?, ?, ?, datetime('now'), 0)
@@ -107,7 +107,7 @@ def migrate_jsonl_to_sqlite():
                 item.get("date", item.get("timestamp", datetime.now().isoformat()))
             ))
             count += 1
-            
+
     conn.commit()
     conn.close()
     print(f"✅ Migración completada. {count} registros importados.")

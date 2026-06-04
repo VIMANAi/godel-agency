@@ -1,6 +1,6 @@
 # Godel — Sistema de Análisis de Inteligencia Electoral Local
 
-**Versión Activa:** `2.0` | **Estado:** Producción | **Última Refactorización:** 2026-05-31  
+**Versión Activa:** `2.0` | **Estado:** Producción | **Última Refactorización:** 2026-05-31
 **Compliance:** LGPDPPSO · GDPR · Berkeley Protocol · EU AI Act
 
 Sistema de war room digital de análisis político multicanal con motor de orquestación dual y soporte para agentes autónomos seguros.

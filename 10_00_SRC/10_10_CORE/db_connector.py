@@ -16,6 +16,7 @@ DB_PATH = "/home/fratfn/Desarrollo/Databases/chromadb_store"
 
 try:
     import chromadb
+
     CHROMA_AVAILABLE = True
 except ImportError:
     CHROMA_AVAILABLE = False
@@ -27,14 +28,14 @@ class RAGDatabaseConnector:
     def __init__(self, path: str = DB_PATH):
         self.db_path = path
         self.client = None
-        
+
         if not CHROMA_AVAILABLE:
             raise ImportError(
                 "❌ Error: 'chromadb' no está instalado en el entorno virtual.\n"
                 "Para solucionarlo, ejecuta:\n"
                 "  /home/fratfn/.local/bin/uv pip install chromadb --python /home/fratfn/vertex_env\n"
             )
-            
+
         # Inicializar el cliente persistente local en disco
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self.client = chromadb.PersistentClient(path=self.db_path)
@@ -49,11 +50,7 @@ class RAGDatabaseConnector:
         """Indexa textos y metadatos en la base de datos local RAG."""
         try:
             collection = self.get_collection(collection_name)
-            collection.add(
-                documents=documents,
-                metadatas=metadatas,
-                ids=ids
-            )
+            collection.add(documents=documents, metadatas=metadatas, ids=ids)
             return True
         except Exception as e:
             print(f"❌ Error al indexar datos en RAG: {e}", file=sys.stderr)
@@ -63,10 +60,7 @@ class RAGDatabaseConnector:
         """Realiza una consulta semántica (búsqueda vectorial) sobre la colección."""
         try:
             collection = self.get_collection(collection_name)
-            results = collection.query(
-                query_texts=[query_text],
-                n_results=n_results
-            )
+            results = collection.query(query_texts=[query_text], n_results=n_results)
             return results
         except Exception as e:
             print(f"❌ Error al realizar consulta semántica en RAG: {e}", file=sys.stderr)

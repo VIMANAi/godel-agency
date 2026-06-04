@@ -9,10 +9,11 @@ Opera de forma híbrida: utiliza Vertex AI corporativo si las credenciales de
 empresa están presentes, o cae de forma segura a tu cuenta personal de Google AI Studio.
 """
 
+import json
 import os
 import sys
-import json
-from typing import List, Dict
+from typing import Dict, List
+
 from dotenv import load_dotenv
 
 # Cargar variables de entorno centralizadas de la bóveda
@@ -28,6 +29,7 @@ CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 try:
     from google import genai
     from google.genai import types
+
     GENAI_AVAILABLE = True
 except ImportError:
     GENAI_AVAILABLE = False
@@ -41,7 +43,7 @@ class VertexSentimentAnalyzer:
         self.location = location
         self.client = None
         self.model_name = "gemini-2.5-flash"
-        
+
         if not GENAI_AVAILABLE:
             raise ImportError(
                 "❌ Error: La librería unificada 'google-genai' no está disponible en este entorno virtual.\n"
@@ -56,14 +58,10 @@ class VertexSentimentAnalyzer:
         # Caso A: Priorizar la conexión corporativa a Vertex AI si el Project ID de la empresa es real
         if self.project_id and not self.project_id.startswith("tu-proyecto"):
             try:
-                print(f"🏢 [Autenticación]: Intentando conexión corporativa (Vertex AI en GCP)...")
+                print("🏢 [Autenticación]: Intentando conexión corporativa (Vertex AI en GCP)...")
                 print(f"   Project ID: {self.project_id} | Región: {self.location}")
                 # El SDK unificado inicializa Vertex AI utilizando las credenciales nativas ADC de tu máquina
-                self.client = genai.Client(
-                    vertexai=True,
-                    project=self.project_id,
-                    location=self.location
-                )
+                self.client = genai.Client(vertexai=True, project=self.project_id, location=self.location)
                 # Validar la conexión de Vertex haciendo una llamada rápida en seco
                 # Si esto falla con un error de credenciales, saltará al bloque except
                 print("🏢 [Autenticación]: Conexión exitosa a Vertex AI corporativo.")
@@ -75,7 +73,7 @@ class VertexSentimentAnalyzer:
         if not self.client and GEMINI_API_KEY and not GEMINI_API_KEY.startswith("PEGAR_AQUI"):
             print("👤 [Autenticación]: Usando cuenta personal (Google AI Studio) como respaldo seguro.")
             self.client = genai.Client(api_key=GEMINI_API_KEY)
-            
+
         if not self.client:
             raise ValueError(
                 "❌ Error: No se pudo inicializar ningún cliente válido (Vertex AI ni AI Studio).\n"
@@ -87,9 +85,9 @@ class VertexSentimentAnalyzer:
         """Analiza el sentimiento de un lote de comentarios usando Gemini 1.5 Flash."""
         if not texts:
             return []
-            
+
         print(f"--- Analizando lote de {len(texts)} comentarios con {self.model_name} ---")
-        
+
         # Ingeniería de Prompt para salida de datos estructurados JSON consistentes
         prompt = """
         Analiza el sentimiento político de los siguientes comentarios de ciudadanos de Nayarit, México.
@@ -97,9 +95,9 @@ class VertexSentimentAnalyzer:
         - score: flotante entre -1.0 (muy negativo) y 1.0 (muy positivo).
         - label: 'positivo', 'negativo', 'neutro' o 'ironico'.
         - topic: el tema principal (Seguridad, Economía, Elecciones, Infraestructura, Desconocido).
-        
+
         Devuelve una LISTA estructurada de JSONs en el mismo orden que los textos de entrada.
-        
+
         COMENTARIOS A ANALIZAR:
         """
         for i, text in enumerate(texts):
@@ -110,16 +108,14 @@ class VertexSentimentAnalyzer:
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json"
-                )
+                config=types.GenerateContentConfig(response_mime_type="application/json"),
             )
-            
+
             results = json.loads(response.text)
             # Asegurar consistencia del formato de salida
             if isinstance(results, dict) and "results" in results:
                 results = results["results"]
-            
+
             return results
         except Exception as e:
             print(f"⚠️ Error en la llamada unificada de GenAI: {e}", file=sys.stderr)
@@ -133,7 +129,7 @@ if __name__ == "__main__":
         test_texts = [
             "Andrea Navarro es la mejor opción para Tepic, ha trabajado mucho.",
             "No me gusta nada como está la seguridad en el estado de Nayarit.",
-            "Pues ahí la llevan, a ver qué pasa con las elecciones locales de este año."
+            "Pues ahí la llevan, a ver qué pasa con las elecciones locales de este año.",
         ]
         res = analyzer.analyze_batch(test_texts)
         print(json.dumps(res, indent=4, ensure_ascii=False))

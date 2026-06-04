@@ -1,8 +1,8 @@
 # Thin Adapter to global godel-core tests
+import os
 import sys
 from pathlib import Path
 
-import os
 
 def _get_core_path():
     env_path = os.environ.get("GODEL_CORE_PATH")
@@ -17,10 +17,12 @@ def _get_core_path():
             break
     return Path("/home/fratfn/Desarrollo/godel-core")
 
+
 CORE_PATH = _get_core_path()
 if str(CORE_PATH) not in sys.path:
     sys.path.insert(0, str(CORE_PATH))
 
 import tests.test_sdlc_suite
+
 if __name__ == "__main__":
     tests.test_sdlc_suite.run_tests()

@@ -7,5 +7,6 @@ if str(CORE_PATH) not in sys.path:
     sys.path.insert(0, str(CORE_PATH))
 
 import tests.test_orchestration
+
 if __name__ == "__main__":
     tests.test_orchestration.run_tests()

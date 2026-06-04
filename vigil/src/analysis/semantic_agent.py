@@ -7,7 +7,7 @@ Módulo de clasificación semántica del discurso político.
 import json
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import polars as pl
 from google import genai
@@ -45,7 +45,7 @@ class AgenteSemanticoElectoral:
                 self.client = genai.Client(api_key=self.api_key)
             except Exception as e:
                 logger.error(f"Error al inicializar el cliente de Gemini: {e}")
-        
+
         if not self.client:
             logger.warning("Gemini Client no inicializado. Modo simulación activo.")
 
@@ -88,7 +88,12 @@ class AgenteSemanticoElectoral:
                 }
         except Exception as e:
             logger.error(f"Error durante inferencia: {e}")
-            return {"error": "falla_en_inferencia", "sentiment": "neutral", "framing": "informative", "keywords_extracted": []}
+            return {
+                "error": "falla_en_inferencia",
+                "sentiment": "neutral",
+                "framing": "informative",
+                "keywords_extracted": [],
+            }
 
     def clasificar_dataframe(self, df: pl.DataFrame, columna_texto: str) -> pl.DataFrame:
         """Procesa y enriquece un DataFrame de Polars llamando al clasificador NLP.
@@ -99,7 +104,7 @@ class AgenteSemanticoElectoral:
             return df
 
         logger.info(f"Clasificando {df.height} comentarios con Gemini API.")
-        
+
         sentiments = []
         framings = []
         keywords = []
@@ -114,7 +119,7 @@ class AgenteSemanticoElectoral:
                 keywords.append([])
                 confidences.append(0.0)
                 continue
-                
+
             res = self.clasificar_comentario(str(texto))
             sentiments.append(res.get("sentiment", "neutral"))
             framings.append(res.get("framing", "informative"))
@@ -122,11 +127,13 @@ class AgenteSemanticoElectoral:
             confidences.append(res.get("confidence", 0.0))
 
         # Inyectar columnas en Polars
-        df_enriquecido = df.with_columns([
-            pl.Series("sentimiento", sentiments),
-            pl.Series("framing", framings),
-            pl.Series("keywords_extracted", keywords),
-            pl.Series("confidence", confidences),
-        ])
+        df_enriquecido = df.with_columns(
+            [
+                pl.Series("sentimiento", sentiments),
+                pl.Series("framing", framings),
+                pl.Series("keywords_extracted", keywords),
+                pl.Series("confidence", confidences),
+            ]
+        )
 
         return df_enriquecido

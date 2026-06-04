@@ -1,8 +1,8 @@
 # INFORME DE AUDITORÍA TÉCNICA Y TREEMAP DE ARCHIVOS — SISTEMA SAIEL
-**Ubicación Temporal:** Mayo 2026  
-**Fecha de Emisión:** 2026-05-30  
-**Objetivo de Ingesta:** RAG / NotebookLM  
-**Autor:** SAIEL Technical Core Team  
+**Ubicación Temporal:** Mayo 2026
+**Fecha de Emisión:** 2026-05-30
+**Objetivo de Ingesta:** RAG / NotebookLM
+**Autor:** SAIEL Technical Core Team
 
 ---
 
@@ -11,9 +11,9 @@
 Nos hemos enlazado exitosamente al API REST de Apify utilizando el token de acceso recuperado de las credenciales legadas (`REDACTED_APIFY_TOKEN`). A continuación se detallan los resultados de la auditoría en vivo de la cuenta:
 
 ### A. Metadatos de la Cuenta
-*   **Usuario:** `engaging_jumble`  
-*   **Email Asociado:** `kenth7018@gmail.com`  
-*   **Plan Activo:** `Free` (Límites mensuales de uso: $0.00 USD, consumo del periodo actual: $0.00 USD).  
+*   **Usuario:** `engaging_jumble`
+*   **Email Asociado:** `kenth7018@gmail.com`
+*   **Plan Activo:** `Free` (Límites mensuales de uso: $0.00 USD, consumo del periodo actual: $0.00 USD).
 
 ### B. Mapeo de Corridas Históricas (Febrero 20, 2026)
 Se identificaron exactamente **10 corridas exitosas** (`SUCCEEDED`) ejecutadas el **20 de febrero de 2026**. Estas corridas corresponden al scraping de publicaciones y comentarios de Facebook y constituyen el origen exacto de los datasets crudos en el proyecto:
@@ -37,7 +37,7 @@ Para evaluar las proporciones físicas y de peso de código de los directorios d
 ```mermaid
 subgraph SAIEL_Project_Workspace ["SAIEL Workspace [/home/fratfn/Desarrollo/Agency]"]
     direction TB
-    
+
     subgraph Core_Layer ["1. CAPA CORE (src/core) - Peso: 55%"]
         pdiv_calc["pdiv_calculator.py\nOrquestador\n(13.2 KB)"]
         pdiv_p["pdiv_p_sentiment.py\nComponente P\n(8.5 KB)"]

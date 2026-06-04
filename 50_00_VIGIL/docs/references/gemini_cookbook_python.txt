@@ -102,7 +102,7 @@ Indentation
             "response_mime_type": "application/json",
             "response_schema": Schema
         }
-    )    
+    )
 
 Notice the line break on the first and last lines.
 
@@ -113,7 +113,7 @@ Notice the line break on the first and last lines.
         Halvah croissant candy canes bonbon candy. Apple pie jelly beans topping carrot cake danish tart cake cheesecake.
         Muffin danish chocolate soufflé pastry icing bonbon oat cake. Powder cake jujubes oat cake.
         Lemon drops tootsie roll marshmallow halvah carrot cake.
-    """    
+    """
 
 Notice the line break on the first and last lines.
 
@@ -179,4 +179,3 @@ Comments
     Write clear and concise comments: Explain the "why" behind the code, not just the "what".
     Comment sparingly: Well-written code should be self-documenting where possible.
     Use complete sentences: Start comments with a capital letter and use proper punctuation.
-

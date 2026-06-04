@@ -21,7 +21,7 @@ El sistema SAIEL integra algoritmos de vanguardia de la librería Scikit-Learn p
 - **Rigor:** Clasifica cada comentario como "orgánico" o "anómalo" basado en la densidad de la distribución.
 
 ### Ridge Regression (Optimización Dinámica)
-- **Aplicación:** Calibración de los pesos de la fórmula PDIV. 
+- **Aplicación:** Calibración de los pesos de la fórmula PDIV.
 - **Mecánica:** Entrena con datos históricos de elecciones reales para ajustar los coeficientes (0.4, 0.3, etc.) y maximizar la precisión predictiva.
 
 ### LDA - Latent Dirichlet Allocation (Tópicos)

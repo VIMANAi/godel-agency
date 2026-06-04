@@ -2,7 +2,7 @@
 Describe the change and why it is needed.
 
 ## Changes
-- 
+-
 
 ## Validation
 - [ ] Lint/format checks pass

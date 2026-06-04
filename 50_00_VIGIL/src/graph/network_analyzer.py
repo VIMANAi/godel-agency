@@ -7,11 +7,12 @@ y el algoritmo de detección de comportamiento inauténtico coordinado (CIB).
 
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Tuple
-import polars as pl
-import networkx as nx
+from typing import Any, Dict, List
+
 import community as community_louvain
+import networkx as nx
 import numpy as np
+import polars as pl
 
 logging.basicConfig(
     level=logging.INFO,
@@ -35,10 +36,12 @@ def build_entity_network(df_nlp: pl.DataFrame) -> nx.Graph:
         entidades = row.get("entities", row.get("keywords_extracted", []))
         if not entidades or not isinstance(entidades, list):
             continue
-            
+
         # Filtrar entidades vacías o indeterminadas
-        entidades = [e.strip() for e in entidades if e and str(e).strip().lower() not in ["indeterminado", "null", "none"]]
-        
+        entidades = [
+            e.strip() for e in entidades if e and str(e).strip().lower() not in ["indeterminado", "null", "none"]
+        ]
+
         # Agregar relaciones de co-ocurrencia
         for i in range(len(entidades)):
             ent_a = entidades[i]
@@ -47,7 +50,7 @@ def build_entity_network(df_nlp: pl.DataFrame) -> nx.Graph:
                 G.nodes[ent_a]["weight"] = G.nodes[ent_a].get("weight", 0) + 1
             else:
                 G.add_node(ent_a, weight=1)
-                
+
             for j in range(i + 1, len(entidades)):
                 ent_b = entidades[j]
                 if G.has_edge(ent_a, ent_b):
@@ -87,11 +90,11 @@ def calculate_k_core(G: nx.Graph, k: int = 2) -> nx.Graph:
         return G
 
     logger.info(f"Calculando K-Core con umbral k={k}.")
-    
+
     # K-core requiere eliminar self-loops
     G_clean = G.copy()
     G_clean.remove_edges_from(nx.selfloop_edges(G_clean))
-    
+
     try:
         k_core = nx.k_core(G_clean, k=k)
         logger.info(f"K-Core extraído con {k_core.number_of_nodes()} nodos nucleares.")
@@ -108,7 +111,7 @@ def calcular_sincronia_cib(df_posts: pl.DataFrame, delta_t_max: float = 300.0) -
     Si S_T > 0.85, se reporta como una anomalía coordinada.
     """
     logger.info("Analizando sincronía de publicación para detección CIB.")
-    
+
     # Verificar columnas de fecha y texto
     cols = df_posts.columns
     if "texto_publicacion" not in cols or "fecha" not in cols:
@@ -120,20 +123,22 @@ def calcular_sincronia_cib(df_posts: pl.DataFrame, delta_t_max: float = 300.0) -
     df_agrupado = (
         df_posts.filter(pl.col("texto_publicacion").str.len_chars() > 15)
         .group_by("texto_publicacion")
-        .agg([
-            pl.col("fecha").alias("timestamps"),
-            pl.col("id_activo").alias("paginas_emisoras"),
-            pl.col("url").alias("urls_publicaciones"),
-            pl.count().alias("cantidad_duplicados")
-        ])
+        .agg(
+            [
+                pl.col("fecha").alias("timestamps"),
+                pl.col("id_activo").alias("paginas_emisoras"),
+                pl.col("url").alias("urls_publicaciones"),
+                pl.count().alias("cantidad_duplicados"),
+            ]
+        )
         .filter(pl.col("cantidad_duplicados") > 1)
     )
 
     alertas_cib = []
-    
+
     for row in df_agrupado.iter_rows(named=True):
         timestamps = row["timestamps"]
-        
+
         # Convertir timestamps a objetos datetime e ISO
         dts = []
         for t in timestamps:
@@ -145,33 +150,35 @@ def calcular_sincronia_cib(df_posts: pl.DataFrame, delta_t_max: float = 300.0) -
                     continue
             elif isinstance(t, datetime):
                 dts.append(t)
-                
+
         if len(dts) < 2:
             continue
-            
+
         # Calcular timestamps numéricos (en segundos)
         timestamps_seg = [dt.timestamp() for dt in dts]
-        
+
         # Calcular desviación estándar
         std_dev = float(np.std(timestamps_seg))
-        
+
         # Calcular score S_T
         # Si la desviación es mayor que delta_t_max, la sincronía es baja/cero
         if std_dev >= delta_t_max:
             s_t = 0.0
         else:
             s_t = 1.0 - (std_dev / delta_t_max)
-            
+
         if s_t > 0.85:
-            alertas_cib.append({
-                "texto_coordinado": row["texto_publicacion"][:150] + "...",
-                "paginas_involucradas": list(set(row["paginas_emisoras"])),
-                "urls": row["urls_publicaciones"],
-                "cantidad": row["cantidad_duplicados"],
-                "desviacion_segundos": round(std_dev, 2),
-                "sincronia_s_t": round(s_t, 3),
-                "status": "COORDINATION_SUSPECT"
-            })
+            alertas_cib.append(
+                {
+                    "texto_coordinado": row["texto_publicacion"][:150] + "...",
+                    "paginas_involucradas": list(set(row["paginas_emisoras"])),
+                    "urls": row["urls_publicaciones"],
+                    "cantidad": row["cantidad_duplicados"],
+                    "desviacion_segundos": round(std_dev, 2),
+                    "sincronia_s_t": round(s_t, 3),
+                    "status": "COORDINATION_SUSPECT",
+                }
+            )
             logger.warning(
                 f"[COORDINATION_SUSPECT] Detectada sincronía de {round(s_t, 2)} "
                 f"entre {row['cantidad_duplicados']} páginas para una publicación idéntica."

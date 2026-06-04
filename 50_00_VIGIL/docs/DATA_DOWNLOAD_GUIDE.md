@@ -102,7 +102,7 @@ URL: https://www.inegi.org.mx/app/scitel/Default?ev=9
 Seleccionar: Entidad = Nayarit (18)
 Descargar ITER (resultados por localidad):
   - iter_18CSV20.zip    → descomprimir en raw/inegi/cpv2020/
-  
+
 URL alternativa AGEB: https://www.inegi.org.mx/app/scitel/Default?ev=10
   - ageb_manzana_urbana_18.zip  → raw/inegi/cpv2020/ageb/
 ```
@@ -232,7 +232,7 @@ def normalizar_electoral(path_raw: str, fuente: str) -> pl.DataFrame:
     Normalización estándar para datos electorales INE/IEEN
     """
     df = pl.read_csv(path_raw, infer_schema_length=10000)
-    
+
     # 1. Nombres de columnas: snake_case, sin acentos, sin espacios
     df = df.rename({
         col: col.lower()
@@ -242,24 +242,24 @@ def normalizar_electoral(path_raw: str, fuente: str) -> pl.DataFrame:
                .replace("ñ", "n")
         for col in df.columns
     })
-    
+
     # 2. Añadir metadata
     df = df.with_columns([
         pl.lit(fuente).alias("_fuente"),
         pl.lit(date.today().isoformat()).alias("_fecha_ingesta"),
         pl.lit("raw").alias("_capa"),
     ])
-    
+
     # 3. Filtrar solo Nayarit si hay columna de estado
     if "cve_ent" in df.columns:
         df = df.filter(pl.col("cve_ent") == 18)
     elif "entidad" in df.columns:
         df = df.filter(pl.col("entidad").str.contains("(?i)nayarit"))
-    
+
     # 4. Escribir Parquet particionado
     nombre = path_raw.split("/")[-1].replace(".csv", "").replace(".xlsx", "")
     df.write_parquet(f"data/silver/electoral/{nombre}.parquet")
-    
+
     print(f"OK: {len(df):,} registros → silver/electoral/{nombre}.parquet")
     return df
 
@@ -269,7 +269,7 @@ def normalizar_facebook_jsonl(path_raw: str) -> pl.DataFrame:
     Normalización de datos de Apify Facebook scraper
     """
     df = pl.read_ndjson(path_raw)
-    
+
     # Campos estándar Vigil
     campos = {
         "postId": "post_id",
@@ -281,27 +281,27 @@ def normalizar_facebook_jsonl(path_raw: str) -> pl.DataFrame:
         "date": "fecha",
         "url": "url",
     }
-    
+
     # Seleccionar solo campos que existan
     cols_disponibles = [c for c in campos.keys() if c in df.columns]
     df = df.select(cols_disponibles).rename({k: v for k, v in campos.items() if k in cols_disponibles})
-    
+
     # Parsear fecha
     if "fecha" in df.columns:
         df = df.with_columns(
             pl.col("fecha").str.to_datetime(strict=False).alias("fecha")
         )
-    
+
     # Metadata
     df = df.with_columns([
         pl.lit("facebook_apify").alias("_fuente"),
         pl.lit(date.today().isoformat()).alias("_fecha_ingesta"),
         pl.lit("silver").alias("_capa"),
     ])
-    
+
     nombre = path_raw.split("/")[-1].replace(".jsonl", "")
     df.write_parquet(f"data/silver/redes_sociales/{nombre}.parquet")
-    
+
     print(f"OK: {len(df):,} registros → silver/redes_sociales/{nombre}.parquet")
     return df
 ```

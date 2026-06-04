@@ -10,14 +10,15 @@ Autor: SAIEL Intelligence System
 Versión: 2.5 (Dynamic & Hybrid OSINT)
 """
 
-import json
-import hashlib
 import argparse
+import hashlib
+import json
 import os
-from uuid import uuid4
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
+from uuid import uuid4
+
 import httpx
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -26,11 +27,12 @@ from faker import Faker
 # Cargar variables de entorno
 load_dotenv()
 
+
 class SocialCollector:
     """
     Motor híbrido de recolección de comentarios de redes sociales
     """
-    
+
     def __init__(self, base_path: Optional[Path] = None):
         # Determinar ruta base del proyecto de forma dinámica
         if base_path:
@@ -41,15 +43,15 @@ class SocialCollector:
                 self.base_path = Path(env_base)
             else:
                 self.base_path = Path(__file__).resolve().parents[2]
-                
+
         self.raw_dir = self.base_path / "data" / "raw"
         self.legacy_raw_dir = self.base_path / "20_00_DATA" / "20_10_RAW"
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         self.legacy_raw_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Token opcional de Apify
         self.apify_token = os.getenv("APIFY_API_TOKEN") or os.getenv("APIFY_TOKEN")
-        self.fake = Faker('es_MX')
+        self.fake = Faker("es_MX")
         self.ingestion_run_id = f"run_{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid4().hex[:8]}"
 
     def collect_via_apify(self, target: str, platform: str, limit: int) -> List[Dict]:
@@ -57,31 +59,32 @@ class SocialCollector:
         if not self.apify_token or "REDACTED" in self.apify_token or "TU_TOKEN" in self.apify_token:
             print("[Advertencia] APIFY_API_TOKEN/APIFY_TOKEN no configurado. Evitando canal Apify.")
             return []
-            
+
         try:
             from apify_client import ApifyClient
+
             client = ApifyClient(self.apify_token)
             actor_by_platform = {
                 "instagram": "apify/instagram-comment-scraper",
                 "facebook": "apify/facebook-comments-scraper",
             }
             actor_id = actor_by_platform.get(platform.lower(), "apify/facebook-comments-scraper")
-            
+
             profile_url = target
             if not target.startswith("http"):
                 if platform == "instagram":
                     profile_url = f"https://www.instagram.com/{target}/"
                 else:
                     profile_url = f"https://www.facebook.com/{target}/"
-                    
+
             run_input = {
                 "directUrls": [profile_url],
                 "resultsLimit": limit,
             }
-            
+
             print(f"Llamando a Apify Actor para {target}...")
             run = client.actor(actor_id).call(run_input=run_input, timeout=60)
-            
+
             data = []
             for item in client.dataset(run["defaultDatasetId"]).iterate_items():
                 published_at = item.get("timestamp", datetime.now().isoformat())
@@ -111,7 +114,7 @@ class SocialCollector:
                     "published_at": published_at,
                     "url": item.get("url"),
                     "ingestion_run_id": self.ingestion_run_id,
-                    "is_synthetic": False
+                    "is_synthetic": False,
                 }
                 record["raw_hash"] = self._calculate_raw_hash(record)
                 data.append(record)
@@ -127,13 +130,13 @@ class SocialCollector:
         """
         print(f"Iniciando Local Replay para candidato '{target}'...")
         all_comments = []
-        
+
         raw_roots = [self.raw_dir, self.legacy_raw_dir]
         for raw_root in raw_roots:
             if not raw_root.exists():
                 continue
             for file_path in raw_root.rglob("*.json*"):
-                if file_path.name.endswith(('_processed.json', '_rejected.json')):
+                if file_path.name.endswith(("_processed.json", "_rejected.json")):
                     continue
                 if not file_path.is_file():
                     continue
@@ -160,7 +163,7 @@ class SocialCollector:
                                     all_comments.append(r)
                 except Exception:
                     pass
-                
+
         if all_comments:
             print(f"[Replay] Se encontraron {len(all_comments)} registros históricos.")
             # Limitar y mapear a estructura estándar
@@ -170,44 +173,48 @@ class SocialCollector:
                 published_at = item.get("date", item.get("timestamp", datetime.now().isoformat()))
                 text = item.get("text", item.get("comment", ""))
                 entity_id = item.get("entity_id", item.get("id", self._make_entity_id(text, published_at)))
-                formatted.append({
-                    "id": item.get("id", item.get("_id", self._make_entity_id(text, published_at))),
-                    "source": platform,
-                    "target": target,
-                    "candidate": target,
-                    "user": item.get("user", item.get("ownerUsername")),
-                    "user_id": item.get("user_id", item.get("ownerId")),
-                    "text": text,
-                    "date": published_at,
-                    "likes": int(item.get("likes", item.get("likesCount", 0))),
-                    "shares": int(item.get("shares", item.get("sharesCount", 0))),
-                    "comments": int(item.get("comments", item.get("commentsCount", 0))),
-                    "collected_at": datetime.now().isoformat(),
-                    "source_platform": platform,
-                    "entity_type": item.get("entity_type", "comment"),
-                    "entity_id": entity_id,
-                    "parent_post_id": item.get("parent_post_id", item.get("postId")),
-                    "candidate_id": item.get("candidate_id", self._make_candidate_id(target)),
-                    "candidate_name": item.get("candidate_name", target),
-                    "reaction_count": int(item.get("likes", item.get("likesCount", 0))),
-                    "comment_count": int(item.get("comments", item.get("commentsCount", 0))),
-                    "share_count": int(item.get("shares", item.get("sharesCount", 0))),
-                    "published_at": item.get("published_at", published_at),
-                    "url": item.get("url"),
-                    "ingestion_run_id": item.get("ingestion_run_id", self.ingestion_run_id),
-                    "is_synthetic": bool(item.get("is_synthetic", False))
-                })
+                formatted.append(
+                    {
+                        "id": item.get("id", item.get("_id", self._make_entity_id(text, published_at))),
+                        "source": platform,
+                        "target": target,
+                        "candidate": target,
+                        "user": item.get("user", item.get("ownerUsername")),
+                        "user_id": item.get("user_id", item.get("ownerId")),
+                        "text": text,
+                        "date": published_at,
+                        "likes": int(item.get("likes", item.get("likesCount", 0))),
+                        "shares": int(item.get("shares", item.get("sharesCount", 0))),
+                        "comments": int(item.get("comments", item.get("commentsCount", 0))),
+                        "collected_at": datetime.now().isoformat(),
+                        "source_platform": platform,
+                        "entity_type": item.get("entity_type", "comment"),
+                        "entity_id": entity_id,
+                        "parent_post_id": item.get("parent_post_id", item.get("postId")),
+                        "candidate_id": item.get("candidate_id", self._make_candidate_id(target)),
+                        "candidate_name": item.get("candidate_name", target),
+                        "reaction_count": int(item.get("likes", item.get("likesCount", 0))),
+                        "comment_count": int(item.get("comments", item.get("commentsCount", 0))),
+                        "share_count": int(item.get("shares", item.get("sharesCount", 0))),
+                        "published_at": item.get("published_at", published_at),
+                        "url": item.get("url"),
+                        "ingestion_run_id": item.get("ingestion_run_id", self.ingestion_run_id),
+                        "is_synthetic": bool(item.get("is_synthetic", False)),
+                    }
+                )
                 formatted[-1]["raw_hash"] = self._calculate_raw_hash(formatted[-1])
             return formatted
         return []
 
-    def collect_via_local_direct(self, target: str, platform: str, limit: int, allow_synthetic: bool = False) -> List[Dict]:
+    def collect_via_local_direct(
+        self, target: str, platform: str, limit: int, allow_synthetic: bool = False
+    ) -> List[Dict]:
         """
         Scraping directo local (httpx) de páginas de debate/noticias de Tepic.
         Genera un fallback sintético enriquecido con Faker si hay bloqueos de login.
         """
         print(f"Ejecutando Scraping Directo Local para '{target}'...")
-        
+
         # Intentar scraping ligero de portales locales abiertos
         web_fragments = []
         try:
@@ -215,16 +222,16 @@ class SocialCollector:
             url = f"https://www.google.com/search?q={target}+tepic+nayarit+debate"
             headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
             response = httpx.get(url, headers=headers, timeout=5)
-            
+
             if response.status_code == 200:
                 # Extraemos algunos snippets como comentarios reales
-                soup = BeautifulSoup(response.text, 'html.parser')
-                web_fragments = [div.text for div in soup.find_all('div') if len(div.text) > 40][:5]
+                soup = BeautifulSoup(response.text, "html.parser")
+                web_fragments = [div.text for div in soup.find_all("div") if len(div.text) > 40][:5]
                 if web_fragments:
                     print(f"Scrapeados {len(web_fragments)} fragmentos web reales.")
         except Exception:
             pass
-        
+
         if web_fragments:
             data = []
             for i, text in enumerate(web_fragments[:limit]):
@@ -254,7 +261,7 @@ class SocialCollector:
                     "published_at": published_at,
                     "url": url,
                     "ingestion_run_id": self.ingestion_run_id,
-                    "is_synthetic": False
+                    "is_synthetic": False,
                 }
                 record["raw_hash"] = self._calculate_raw_hash(record)
                 data.append(record)
@@ -265,80 +272,114 @@ class SocialCollector:
             return []
 
         print("[Direct Scraping Fallback] Generando comentarios sociales enriquecidos sintéticos...")
-        
+
         candidatos_contexto = {
-            'geraldine': {
-                'partido': 'MORENA',
-                'positivos': ['Excelente alcaldesa para Tepic', 'Se ven los cambios en la ciudad', 'Gran apoyo a Geraldine', 'Sigue adelante por Tepic'],
-                'negativos': ['Tepic sigue lleno de baches', 'Pura publicidad y nada de acción', 'No hay transparencia', 'Falta mucha seguridad en las colonias']
+            "geraldine": {
+                "partido": "MORENA",
+                "positivos": [
+                    "Excelente alcaldesa para Tepic",
+                    "Se ven los cambios en la ciudad",
+                    "Gran apoyo a Geraldine",
+                    "Sigue adelante por Tepic",
+                ],
+                "negativos": [
+                    "Tepic sigue lleno de baches",
+                    "Pura publicidad y nada de acción",
+                    "No hay transparencia",
+                    "Falta mucha seguridad en las colonias",
+                ],
             },
-            'adahan': {
-                'partido': 'PAN_PRI_PRD',
-                'positivos': ['El mejor candidato para levantar Tepic', 'Adahan tiene experiencia', 'Propuestas reales por Nayarit', 'Todo el apoyo de la alianza'],
-                'negativos': ['Puro corrupto en esa coalición', 'Ya gobernaron y no hicieron nada', 'No tienen credibilidad', 'Representa al viejo sistema']
+            "adahan": {
+                "partido": "PAN_PRI_PRD",
+                "positivos": [
+                    "El mejor candidato para levantar Tepic",
+                    "Adahan tiene experiencia",
+                    "Propuestas reales por Nayarit",
+                    "Todo el apoyo de la alianza",
+                ],
+                "negativos": [
+                    "Puro corrupto en esa coalición",
+                    "Ya gobernaron y no hicieron nada",
+                    "No tienen credibilidad",
+                    "Representa al viejo sistema",
+                ],
             },
-            'ivideliza': {
-                'partido': 'MC',
-                'positivos': ['Movimiento Ciudadano la mejor opción', 'Ivideliza es una mujer de propuestas', 'Tepic necesita una alternativa nueva', 'Gran líder honesta'],
-                'negativos': ['MC solo divide el voto', 'No tiene estructura para ganar', 'Pura campaña en redes y nada de calle', 'Falsas promesas de siempre']
-            }
+            "ivideliza": {
+                "partido": "MC",
+                "positivos": [
+                    "Movimiento Ciudadano la mejor opción",
+                    "Ivideliza es una mujer de propuestas",
+                    "Tepic necesita una alternativa nueva",
+                    "Gran líder honesta",
+                ],
+                "negativos": [
+                    "MC solo divide el voto",
+                    "No tiene estructura para ganar",
+                    "Pura campaña en redes y nada de calle",
+                    "Falsas promesas de siempre",
+                ],
+            },
         }
-        
+
         # Determinar contexto según el candidato
-        cand_key = 'default'
+        cand_key = "default"
         for k in candidatos_contexto.keys():
             if k in target.lower():
                 cand_key = k
                 break
-                
+
         data = []
         for i in range(limit):
             # Generar sentiment
-            if cand_key != 'default':
+            if cand_key != "default":
                 ctx = candidatos_contexto[cand_key]
-                sentiment = self.fake.random_element(['pos', 'neg', 'neu'])
-                if sentiment == 'pos':
-                    text = self.fake.random_element(ctx['positivos'])
-                elif sentiment == 'neg':
-                    text = self.fake.random_element(ctx['negativos'])
+                sentiment = self.fake.random_element(["pos", "neg", "neu"])
+                if sentiment == "pos":
+                    text = self.fake.random_element(ctx["positivos"])
+                elif sentiment == "neg":
+                    text = self.fake.random_element(ctx["negativos"])
                 else:
                     text = f"Hoy el candidato {target} estuvo recorriendo colonias en Tepic."
             else:
                 text = f"Comentario número {i} sobre el candidato {target} en Tepic, Nayarit."
-                
+
             # Generar likes/comments aleatorios
-            likes = int(self.fake.random_element([0, 1, 5, 20, 150, 950])) # incluye outliers para testear IQR
+            likes = int(self.fake.random_element([0, 1, 5, 20, 150, 950]))  # incluye outliers para testear IQR
             comments = int(self.fake.random_element([0, 1, 2, 10, 45]))
-            
-            data.append({
-                "id": self.fake.md5()[:16],
-                "source": platform,
-                "target": target,
-                "candidate": target,
-                "user": self.hash_username(self.fake.user_name()) if i % 3 == 0 else self.fake.user_name(), # bots repetidos
-                "user_id": self.fake.md5()[:8],
-                "text": text,
-                "date": (datetime.now() - timedelta(days=i)).isoformat(), # Fechas cronológicas
-                "likes": likes,
-                "shares": int(likes * 0.1),
-                "comments": comments,
-                "collected_at": datetime.now().isoformat(),
-                "source_platform": platform,
-                "entity_type": "comment",
-                "entity_id": self._make_entity_id(text, (datetime.now() - timedelta(days=i)).isoformat()),
-                "parent_post_id": None,
-                "candidate_id": self._make_candidate_id(target),
-                "candidate_name": target,
-                "reaction_count": likes,
-                "comment_count": comments,
-                "share_count": int(likes * 0.1),
-                "published_at": (datetime.now() - timedelta(days=i)).isoformat(),
-                "url": None,
-                "ingestion_run_id": self.ingestion_run_id,
-                "is_synthetic": True
-            })
+
+            data.append(
+                {
+                    "id": self.fake.md5()[:16],
+                    "source": platform,
+                    "target": target,
+                    "candidate": target,
+                    "user": (
+                        self.hash_username(self.fake.user_name()) if i % 3 == 0 else self.fake.user_name()
+                    ),  # bots repetidos
+                    "user_id": self.fake.md5()[:8],
+                    "text": text,
+                    "date": (datetime.now() - timedelta(days=i)).isoformat(),  # Fechas cronológicas
+                    "likes": likes,
+                    "shares": int(likes * 0.1),
+                    "comments": comments,
+                    "collected_at": datetime.now().isoformat(),
+                    "source_platform": platform,
+                    "entity_type": "comment",
+                    "entity_id": self._make_entity_id(text, (datetime.now() - timedelta(days=i)).isoformat()),
+                    "parent_post_id": None,
+                    "candidate_id": self._make_candidate_id(target),
+                    "candidate_name": target,
+                    "reaction_count": likes,
+                    "comment_count": comments,
+                    "share_count": int(likes * 0.1),
+                    "published_at": (datetime.now() - timedelta(days=i)).isoformat(),
+                    "url": None,
+                    "ingestion_run_id": self.ingestion_run_id,
+                    "is_synthetic": True,
+                }
+            )
             data[-1]["raw_hash"] = self._calculate_raw_hash(data[-1])
-            
+
         return data
 
     def hash_username(self, value: str) -> str:
@@ -377,34 +418,36 @@ class SocialCollector:
                 json.dump(data, f, indent=4, ensure_ascii=False)
         print(f"✓ Datos de recolección guardados en capas raw ({data_tier}): {output_paths[0]}")
 
-    def collect_social_data(self, target: str, platform: str = "instagram", limit: int = 20, mode: str = "default") -> List[Dict]:
+    def collect_social_data(
+        self, target: str, platform: str = "instagram", limit: int = 20, mode: str = "default"
+    ) -> List[Dict]:
         """
         Orquesta la recolección delegando en el canal correcto según configuración y disponibilidad
         """
         print(f"\n--- INICIANDO CAPA DE RECOLECCIÓN OSINT [Target: {target}] ---")
         data = []
-        
+
         platform = platform.lower().strip()
 
         # 1. Modo Forzado Replay (útil para no consumir recursos)
         if mode == "replay":
             data = self.collect_via_replay(target, platform, limit)
-            
+
         # 2. Modo Apify SaaS (si tiene token)
         elif self.apify_token and mode in {"default", "apify"}:
             data = self.collect_via_apify(target, platform, limit)
-            
+
         # 3. Fallback / Modo Local Directo (sin synthetic por defecto)
         if not data:
             # Primero intentar Replay de históricos si el modo no es estrictamente local
             if mode == "default":
                 data = self.collect_via_replay(target, platform, limit)
-            
+
             # Si no hay datos históricos, intentar raspado local sin synthetic
             if not data:
                 allow_synthetic = mode in {"local", "synthetic"}
                 data = self.collect_via_local_direct(target, platform, limit, allow_synthetic=allow_synthetic)
-                
+
         # Guardar en data/raw
         if data:
             filename = f"raw_{platform}_{target.lower().replace(' ', '_')}.json"
@@ -415,8 +458,9 @@ class SocialCollector:
                 self._save_to_raw(real_data, filename, platform, is_synthetic=False)
             if synthetic_data:
                 self._save_to_raw(synthetic_data, filename, platform, is_synthetic=True)
-            
+
         return data
+
 
 # --- CLI ENTRYPOINT ---
 if __name__ == "__main__":
@@ -424,14 +468,15 @@ if __name__ == "__main__":
     parser.add_argument("--target", type=str, required=True, help="Nombre del candidato o URL a evaluar")
     parser.add_argument("--source", type=str, default="facebook", help="Plataforma de origen (instagram, facebook)")
     parser.add_argument("--limit", type=int, default=20, help="Cantidad de comentarios a recolectar")
-    parser.add_argument("--mode", type=str, default="default", choices=["default", "replay", "apify", "local", "synthetic"], help="Estrategia de recolección")
-    
-    args = parser.parse_args()
-    
-    collector = SocialCollector()
-    collector.collect_social_data(
-        target=args.target,
-        platform=args.source,
-        limit=args.limit,
-        mode=args.mode
+    parser.add_argument(
+        "--mode",
+        type=str,
+        default="default",
+        choices=["default", "replay", "apify", "local", "synthetic"],
+        help="Estrategia de recolección",
     )
+
+    args = parser.parse_args()
+
+    collector = SocialCollector()
+    collector.collect_social_data(target=args.target, platform=args.source, limit=args.limit, mode=args.mode)

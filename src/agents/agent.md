@@ -6,7 +6,7 @@ Este manual está diseñado exclusivamente para que tú, agente inteligente, asi
 
 ## 🏛️ Filosofía y Reglas de la Capa de Agentes (`src/agents/`)
 
-1.  **Aislamiento del SDK de Antigravity**: 
+1.  **Aislamiento del SDK de Antigravity**:
     Toda dependencia o código relacionado con el SDK de Google Antigravity (hooks, REPL interactivo, orquestadores `Agent` y configuraciones MCP) **DEBE** permanecer en esta subcarpeta. No importes el SDK en `/src/core/` ni en `/src/collectors/` para mantener el determinismo y la ligereza matemática.
 2.  **Modo Dual del Agente (`godel_agent.py`)**:
     Godel tiene dos modos principales de ejecución que los agentes inteligentes pueden invocar:

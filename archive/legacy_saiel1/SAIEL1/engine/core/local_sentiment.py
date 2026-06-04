@@ -19,13 +19,13 @@ from pathlib import Path
 # ─── CONFIGURACIÓN ────────────────────────────────────────────────────────────
 
 MODELOS_DISPONIBLES = {
-    "deepseek":  "deepseek-r1:7b",      # Mejor razonamiento político
-    "qwen":      "qwen2.5-coder:3b",    # Más rápido, menor contexto
-    "bge":       "bge-m3",              # Solo embeddings, no chat
+    "deepseek": "deepseek-r1:7b",  # Mejor razonamiento político
+    "qwen": "qwen2.5-coder:3b",  # Más rápido, menor contexto
+    "bge": "bge-m3",  # Solo embeddings, no chat
 }
 
 MODELO_DEFAULT = MODELOS_DISPONIBLES["deepseek"]
-BATCH_SIZE = 10   # Menor que Gemini (LLM local es más lento)
+BATCH_SIZE = 10  # Menor que Gemini (LLM local es más lento)
 DELAY_LOTES = 0.5
 
 # Detectar ruta base
@@ -66,7 +66,7 @@ Datos: {datos}
 
 Dame exactamente:
 1. **SALUD DIGITAL** (porcentaje positivo/negativo/neutro)
-2. **TOP 3 TEMAS** que más preocupan a la ciudadanía  
+2. **TOP 3 TEMAS** que más preocupan a la ciudadanía
 3. **ALERTA DE CRISIS** (si sentimiento negativo > 60%)
 4. **RECOMENDACIÓN TÁCTICA** (1 acción concreta para esta semana)
 
@@ -74,10 +74,12 @@ Formato: Markdown. Máximo 200 palabras. En español."""
 
 # ─── FUNCIONES ────────────────────────────────────────────────────────────────
 
+
 def verificar_ollama(modelo: str) -> bool:
     """Verifica que Ollama esté corriendo y el modelo disponible."""
     try:
         import ollama
+
         modelos_disponibles = [m.model for m in ollama.list().models]
         if modelo not in modelos_disponibles:
             print(f"⚠️  Modelo '{modelo}' no encontrado.")
@@ -114,15 +116,22 @@ def cargar_comentarios(ruta: str) -> list:
         datos = json.loads(contenido)
         if isinstance(datos, list):
             for item in datos:
-                texto = (item.get("text") or item.get("comment") or
-                         item.get("texto") or item.get("texto_limpio") or
-                         item.get("caption") or str(item))
+                texto = (
+                    item.get("text")
+                    or item.get("comment")
+                    or item.get("texto")
+                    or item.get("texto_limpio")
+                    or item.get("caption")
+                    or str(item)
+                )
                 if texto and len(texto.strip()) > 3:
-                    comentarios.append({
-                        "texto_original": texto.strip(),
-                        "fuente": item.get("username", item.get("fuente", "?")),
-                        "fecha": item.get("timestamp", item.get("fecha", ""))
-                    })
+                    comentarios.append(
+                        {
+                            "texto_original": texto.strip(),
+                            "fuente": item.get("username", item.get("fuente", "?")),
+                            "fecha": item.get("timestamp", item.get("fecha", "")),
+                        }
+                    )
         elif isinstance(datos, dict):
             # Formato reporte SAIEL
             for narrativa in datos.get("narrativas", []):
@@ -155,9 +164,7 @@ def analizar_lote_local(modelo: str, lote: list) -> list:
 
     try:
         respuesta = ollama.chat(
-            model=modelo,
-            messages=[{"role": "user", "content": prompt}],
-            options={"temperature": 0.1, "top_p": 0.9}
+            model=modelo, messages=[{"role": "user", "content": prompt}], options={"temperature": 0.1, "top_p": 0.9}
         )
         texto_resp = respuesta["message"]["content"].strip()
 
@@ -174,7 +181,7 @@ def analizar_lote_local(modelo: str, lote: list) -> list:
 
         # Extraer JSON si hay texto extra antes/después
         inicio = texto_resp.find("[")
-        fin    = texto_resp.rfind("]") + 1
+        fin = texto_resp.rfind("]") + 1
         if inicio != -1 and fin > inicio:
             texto_resp = texto_resp[inicio:fin]
 
@@ -182,9 +189,18 @@ def analizar_lote_local(modelo: str, lote: list) -> list:
 
     except json.JSONDecodeError as e:
         print(f"  ⚠️  Error parseando JSON: {e}")
-        return [{"texto": c["texto_original"], "sentimiento": "neutro",
-                 "intensidad": 2, "tema": "sin clasificar",
-                 "categoria": "neutro", "es_bot": False, "nota": "error_parse"} for c in lote]
+        return [
+            {
+                "texto": c["texto_original"],
+                "sentimiento": "neutro",
+                "intensidad": 2,
+                "tema": "sin clasificar",
+                "categoria": "neutro",
+                "es_bot": False,
+                "nota": "error_parse",
+            }
+            for c in lote
+        ]
     except Exception as e:
         print(f"  ❌ Error Ollama: {e}")
         return []
@@ -207,16 +223,14 @@ def generar_resumen_estrategico(modelo: str, resultados: list) -> str:
     stats = {
         "total": total,
         "sentimientos": {k: f"{v} ({v/total*100:.0f}%)" for k, v in sentimientos.items()},
-        "top_temas": sorted(temas.items(), key=lambda x: -x[1])[:5]
+        "top_temas": sorted(temas.items(), key=lambda x: -x[1])[:5],
     }
 
     prompt = PROMPT_RESUMEN_ESTRATEGICO.format(datos=json.dumps(stats, ensure_ascii=False))
 
     try:
         respuesta = ollama.chat(
-            model=modelo,
-            messages=[{"role": "user", "content": prompt}],
-            options={"temperature": 0.3}
+            model=modelo, messages=[{"role": "user", "content": prompt}], options={"temperature": 0.3}
         )
         return respuesta["message"]["content"]
     except Exception as e:
@@ -235,7 +249,7 @@ def guardar_resultados(resultados: list, ruta_output: Path):
     sentimientos = {}
     temas = {}
     bots = sum(1 for r in resultados if r.get("es_bot", False))
-    
+
     for r in resultados:
         s = r.get("sentimiento", "neutro")
         t = r.get("tema", "?")
@@ -259,16 +273,13 @@ def guardar_resultados(resultados: list, ruta_output: Path):
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 
+
 def main():
     parser = argparse.ArgumentParser(description="Análisis de sentimiento local con Ollama")
-    parser.add_argument("--input",  default="data/raw/comentarios.json",
-                        help="Archivo JSON de entrada")
-    parser.add_argument("--output", default="data/processed/sentimiento_local.json",
-                        help="Archivo JSON de salida")
-    parser.add_argument("--model",  default=MODELO_DEFAULT,
-                        help=f"Modelo Ollama (default: {MODELO_DEFAULT})")
-    parser.add_argument("--resumen", action="store_true",
-                        help="Generar resumen estratégico al final")
+    parser.add_argument("--input", default="data/raw/comentarios.json", help="Archivo JSON de entrada")
+    parser.add_argument("--output", default="data/processed/sentimiento_local.json", help="Archivo JSON de salida")
+    parser.add_argument("--model", default=MODELO_DEFAULT, help=f"Modelo Ollama (default: {MODELO_DEFAULT})")
+    parser.add_argument("--resumen", action="store_true", help="Generar resumen estratégico al final")
     args = parser.parse_args()
 
     print("=" * 55)
@@ -291,7 +302,7 @@ def main():
     print(f"\n🔄 Procesando {len(comentarios)} comentarios en {total_lotes} lotes...\n")
 
     for i in range(0, len(comentarios), BATCH_SIZE):
-        lote = comentarios[i:i + BATCH_SIZE]
+        lote = comentarios[i : i + BATCH_SIZE]
         num_lote = (i // BATCH_SIZE) + 1
         print(f"  Lote {num_lote}/{total_lotes}...", end=" ", flush=True)
 
@@ -327,4 +338,5 @@ def main():
 
 if __name__ == "__main__":
     import sys
+
     main()

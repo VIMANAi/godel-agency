@@ -89,7 +89,7 @@ graph TD
     I --> J[Narrative Discovery]
     J --> K[PDIV Calculator]
     K --> L[Reports & Dashboard]
-    
+
     style D fill:#e1f5fe
     style F fill:#f3e5f5
     style G fill:#e8f5e8
@@ -153,7 +153,7 @@ class SocialMediaRecord(BaseModel):
 
 ### **3. Logging Estructurado**
 ```python
-logger.info("Procesamiento completado", 
+logger.info("Procesamiento completado",
            file=str(input_file),
            valid_records=results['valid_records'],
            processing_time=results['processing_time'])

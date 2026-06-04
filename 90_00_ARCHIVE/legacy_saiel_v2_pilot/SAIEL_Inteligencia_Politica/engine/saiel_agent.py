@@ -13,15 +13,15 @@ Uso:
     > "Hay alguna crisis en las narrativas actuales?"
 """
 
+import json
 import subprocess
 import sys
-import json
-import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ── HERRAMIENTAS (Tools) que el agente puede usar ──────────────────────────
+
 
 def tool_collect_data(target_url: str) -> str:
     """
@@ -32,9 +32,10 @@ def tool_collect_data(target_url: str) -> str:
         Ruta del archivo JSON generado
     """
     result = subprocess.run(
-        [sys.executable, str(BASE_DIR / "engine/social_collector.py"),
-         "--target", target_url],
-        capture_output=True, text=True, cwd=str(BASE_DIR)
+        [sys.executable, str(BASE_DIR / "engine/social_collector.py"), "--target", target_url],
+        capture_output=True,
+        text=True,
+        cwd=str(BASE_DIR),
     )
     if result.returncode == 0:
         return f"Datos recolectados exitosamente. {result.stdout}"
@@ -49,27 +50,31 @@ def tool_run_sensemaker() -> str:
     """
     result = subprocess.run(
         [sys.executable, str(BASE_DIR / "engine/sensemaker_engine.py")],
-        capture_output=True, text=True, cwd=str(BASE_DIR)
+        capture_output=True,
+        text=True,
+        cwd=str(BASE_DIR),
     )
-    
+
     # Leer el reporte generado
     report_path = BASE_DIR / "data/processed/reporte_industrial_narrativas.json"
     if report_path.exists():
         with open(report_path, "r", encoding="utf-8") as f:
             report = json.load(f)
-        
-        summary = f"Shannon Index: {report.get('shannon_diversity', 'N/A')} ({report.get('interpretacion_shannon', '')})\n"
+
+        summary = (
+            f"Shannon Index: {report.get('shannon_diversity', 'N/A')} ({report.get('interpretacion_shannon', '')})\n"
+        )
         summary += f"Total comentarios: {report.get('total_comentarios', 0)}\n\n"
-        
-        for n in report.get('narrativas', []):
+
+        for n in report.get("narrativas", []):
             summary += f"Narrativa #{n['id_narrativa']}: {n['porcentaje']}% del volumen, sentimiento {n['sentimiento_salud']}\n"
-        
-        alertas = report.get('alertas_crisis', [])
+
+        alertas = report.get("alertas_crisis", [])
         if alertas:
             summary += f"\nALERTAS: {len(alertas)} narrativa(s) en estado critico"
-        
+
         return summary
-    
+
     return result.stdout or result.stderr
 
 
@@ -82,7 +87,7 @@ def tool_read_report() -> str:
     report_path = BASE_DIR / "data/processed/reporte_industrial_narrativas.json"
     if not report_path.exists():
         return "No hay reportes generados aun. Ejecuta primero el Sensemaker."
-    
+
     with open(report_path, "r", encoding="utf-8") as f:
         return json.dumps(json.load(f), indent=2, ensure_ascii=False)
 
@@ -96,18 +101,18 @@ def tool_check_crisis() -> str:
     report_path = BASE_DIR / "data/processed/reporte_industrial_narrativas.json"
     if not report_path.exists():
         return "Sin datos. Ejecuta el Sensemaker primero."
-    
+
     with open(report_path, "r", encoding="utf-8") as f:
         report = json.load(f)
-    
+
     # Compatibilidad con formato antiguo (lista) y nuevo (dict)
     if isinstance(report, list):
         return "Reporte en formato antiguo. Ejecuta el Sensemaker actualizado para obtener alertas."
-    
-    alertas = report.get('alertas_crisis', [])
+
+    alertas = report.get("alertas_crisis", [])
     if not alertas:
         return "Sin alertas de crisis activas. Todas las narrativas en zona normal."
-    
+
     resultado = f"{len(alertas)} alerta(s) activa(s):\n"
     for a in alertas:
         resultado += f"  [{a['severidad']}] {a['mensaje']}\n"
@@ -125,11 +130,8 @@ def tool_run_sentiment(target_file: str = None) -> str:
     cmd = [sys.executable, str(BASE_DIR / "engine/local_sentiment.py")]
     if target_file:
         cmd.append(target_file)
-        
-    result = subprocess.run(
-        cmd,
-        capture_output=True, text=True, cwd=str(BASE_DIR)
-    )
+
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=str(BASE_DIR))
     if result.returncode == 0:
         return "Analisis de sentimiento completado exitosamente."
     return f"Error en sentimiento: {result.stderr[:200]}"
@@ -143,29 +145,30 @@ def tool_list_data_files() -> str:
     """
     raw_files = list((BASE_DIR / "data/raw").glob("*.json"))
     processed_files = list((BASE_DIR / "data/processed").glob("*.json"))
-    
+
     result = f"Datos raw ({len(raw_files)} archivos):\n"
     for f in raw_files:
         result += f"  - {f.name} ({f.stat().st_size} bytes)\n"
-    
+
     result += f"\nDatos procesados ({len(processed_files)} archivos):\n"
     for f in processed_files:
         result += f"  - {f.name} ({f.stat().st_size} bytes)\n"
-    
+
     return result
 
 
 # ── AGENTE PRINCIPAL ────────────────────────────────────────────────────────
 
+
 def run_agent_simple(query: str) -> str:
     """
     Agente simple basado en reglas (sin LLM).
     Interpreta comandos en lenguaje natural y ejecuta las herramientas.
-    
+
     Funciona sin Ollama instalado.
     """
     query_lower = query.lower()
-    
+
     # Detectar intención
     if any(word in query_lower for word in ["recolect", "collect", "scrape", "datos de"]):
         # Extraer URL o nombre del target
@@ -174,22 +177,22 @@ def run_agent_simple(query: str) -> str:
         if target:
             return tool_collect_data(target)
         return "Por favor especifica una URL de Instagram o Facebook."
-    
+
     elif any(word in query_lower for word in ["analiz", "sensemaker", "narrativa", "tema"]):
         return tool_run_sensemaker()
-    
+
     elif any(word in query_lower for word in ["sentimiento", "sentiment", "emocion"]):
         return tool_run_sentiment()
-    
+
     elif any(word in query_lower for word in ["crisis", "alerta", "problema", "negativ"]):
         return tool_check_crisis()
-    
+
     elif any(word in query_lower for word in ["reporte", "report", "resultado", "informe"]):
         return tool_read_report()
-    
+
     elif any(word in query_lower for word in ["archivo", "datos", "file", "lista"]):
         return tool_list_data_files()
-    
+
     else:
         return """Comandos disponibles:
 - "Recolecta datos de [URL]" → Extrae comentarios via Apify
@@ -208,7 +211,7 @@ def run_agent_with_llm(query: str, model: str = "deepseek-r1:7b") -> str:
     """
     try:
         import ollama
-        
+
         # Contexto del sistema
         tools_description = """
 Eres un analista de inteligencia politica. Tienes acceso a estas herramientas:
@@ -219,23 +222,23 @@ Eres un analista de inteligencia politica. Tienes acceso a estas herramientas:
 5. tool_read_report() - Lee el ultimo reporte
 6. tool_list_data_files() - Lista archivos disponibles
 
-Responde de forma concisa y profesional. Si necesitas ejecutar una herramienta, 
+Responde de forma concisa y profesional. Si necesitas ejecutar una herramienta,
 indica cual y por que.
 """
-        
+
         # Leer contexto actual
         current_data = tool_list_data_files()
-        
+
         response = ollama.chat(
             model=model,
             messages=[
                 {"role": "system", "content": tools_description},
-                {"role": "user", "content": f"Datos actuales:\n{current_data}\n\nConsulta: {query}"}
-            ]
+                {"role": "user", "content": f"Datos actuales:\n{current_data}\n\nConsulta: {query}"},
+            ],
         )
-        
-        return response['message']['content']
-    
+
+        return response["message"]["content"]
+
     except ImportError:
         return "Ollama no instalado. Usando agente simple.\n\n" + run_agent_simple(query)
     except Exception as e:
@@ -249,35 +252,36 @@ if __name__ == "__main__":
     print("SAIEL Agent - Asistente de Inteligencia Politica")
     print("Escribe 'salir' para terminar")
     print("=" * 60)
-    
+
     # Detectar si Ollama esta disponible
     try:
         import ollama
+
         ollama.list()
         use_llm = True
         print("[OK] Ollama detectado. Usando modo LLM avanzado.")
     except Exception:
         use_llm = False
         print("[INFO] Ollama no disponible. Usando modo simple.")
-    
+
     print()
-    
+
     # Soporte para argumentos de linea de comandos (CLI)
     if len(sys.argv) > 1:
         query = " ".join(sys.argv[1:])
         is_direct_command = query.startswith("--")
-        
-        if is_direct_command: # Limpiar flags si se pasan como --sentimiento
+
+        if is_direct_command:  # Limpiar flags si se pasan como --sentimiento
             query = query.replace("--", "")
-        
+
         print(f"\nEjecutando comando: {query}")
-        
+
         # Si es un comando directo (--flag) o no queremos usar LLM para comandos CLI deterministas
         if is_direct_command or not use_llm:
             response = run_agent_simple(query)
         else:
             response = run_agent_with_llm(query)
-            
+
         print(f"\nAgente: {response}\n")
         sys.exit(0)
 
@@ -288,17 +292,17 @@ if __name__ == "__main__":
                 break
             if not query:
                 continue
-            
+
             print("\nProcesando...")
             if use_llm:
                 response = run_agent_with_llm(query)
             else:
                 response = run_agent_simple(query)
-            
+
             print(f"\nAgente: {response}\n")
             print("-" * 40)
-        
+
         except KeyboardInterrupt:
             break
-    
+
     print("\nAgente SAIEL cerrado.")

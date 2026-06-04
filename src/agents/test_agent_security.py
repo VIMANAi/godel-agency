@@ -7,9 +7,10 @@ Este script valida de forma estática que las políticas de menor privilegio,
 hooks interactivos y rutas permitidas se comporten exactamente según lo diseñado.
 """
 
-import sys
 import os
+import sys
 from pathlib import Path
+
 
 def _get_core_path():
     env_path = os.environ.get("GODEL_CORE_PATH")
@@ -24,11 +25,13 @@ def _get_core_path():
             break
     return Path("/home/fratfn/Desarrollo/godel-core")
 
+
 CORE_PATH = _get_core_path()
 if str(CORE_PATH) not in sys.path:
     sys.path.insert(0, str(CORE_PATH))
 
 from config.security import is_path_allowed, is_writing_outside
+
 
 def run_tests():
     print("=" * 60)
@@ -37,16 +40,17 @@ def run_tests():
 
     # 1. Rutas de Prueba dinámicas
     from pathlib import Path
-    base_dir = Path(__file__).resolve().parents[2] # Agency root
+
+    base_dir = Path(__file__).resolve().parents[2]  # Agency root
     home_dir = Path.home()
-    
+
     safe_agency_path = str(base_dir / "src" / "core" / "test.py")
     safe_db_path = str(base_dir.parent / "Databases" / "chromadb_store" / "index.db")
     unsafe_home_path = str(home_dir / "documentos_importantes.txt")
     unsafe_system_path = "/etc/passwd"
 
     print("\n🔍 Validando políticas de acceso a directorios (is_path_allowed):")
-    
+
     # Caso 1: Ruta segura en Agency
     assert is_path_allowed(safe_agency_path) is True, "❌ Falla: Debería permitir acceso en Agency"
     print(f"   [OK] Permitida ruta de Agency: {safe_agency_path}")
@@ -72,12 +76,15 @@ def run_tests():
 
     # Caso 6: Escritura en zona insegura
     args_unsafe = {"TargetFile": unsafe_home_path}
-    assert is_writing_outside(args_unsafe) is True, "❌ Falla: Escritura en zona insegura debería exigir Hook interactivo"
+    assert (
+        is_writing_outside(args_unsafe) is True
+    ), "❌ Falla: Escritura en zona insegura debería exigir Hook interactivo"
     print(f"   [OK] Escritura externa atrapada para confirmación: {unsafe_home_path}")
 
     print("\n" + "=" * 60)
     print("🎉 TODAS LAS PRUEBAS DE SEGURIDAD PASARON CON ÉXITO [100% OK]")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     run_tests()

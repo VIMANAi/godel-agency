@@ -346,6 +346,6 @@ No aplica al due diligence técnico central. Separar como "análisis estratégic
 
 ---
 
-**Fin del Addendum Complementario**  
-*Generado siguiendo marco industrial de due diligence técnico, datos y operativo*  
+**Fin del Addendum Complementario**
+*Generado siguiendo marco industrial de due diligence técnico, datos y operativo*
 *Actualizado: 2026-06-03 con hallazgos post-análisis*

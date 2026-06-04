@@ -1,8 +1,8 @@
 # GUÍA DE INGESTIÓN Y CONSULTAS PARA RAG / NOTEBOOKLM
-**Proyecto:** SAIEL — Sistema de Análisis de Inteligencia Electoral Local  
-**Ubicación Temporal:** Mayo 2026  
-**Fecha de Emisión:** 2026-05-30  
-**Propósito:** Cuestionario de cruce analítico e hipótesis de investigación para NotebookLM  
+**Proyecto:** SAIEL — Sistema de Análisis de Inteligencia Electoral Local
+**Ubicación Temporal:** Mayo 2026
+**Fecha de Emisión:** 2026-05-30
+**Propósito:** Cuestionario de cruce analítico e hipótesis de investigación para NotebookLM
 
 ---
 

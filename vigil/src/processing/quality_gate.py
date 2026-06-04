@@ -5,12 +5,11 @@ Módulo central de validación, normalización de datos y detección de anomalí
 """
 
 import logging
-import re
 from datetime import date
-from typing import Dict, Any
+from typing import Dict
 
-import polars as pl
 import numpy as np
+import polars as pl
 from sklearn.ensemble import IsolationForest
 
 logging.basicConfig(
@@ -43,16 +42,18 @@ def anonimizar_polars(df: pl.DataFrame, columna: str) -> pl.DataFrame:
     )
 
 
-def mapear_esquema_crudo(df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, int], fuente_nombre: str) -> pl.DataFrame:
+def mapear_esquema_crudo(
+    df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, int], fuente_nombre: str
+) -> pl.DataFrame:
     """Detecta las columnas del dataset crudo y las estandariza al esquema Silver.
 
     Mapea campos como text, likes, shares, comments, likesCount.
     """
     logger.info(f"Normalizando esquema crudo para fuente: {fuente_nombre}")
-    
+
     # 1. Determinar el tipo de datos (Posts o Comments)
     cols = df_crudo.columns
-    
+
     # Mapeo por defecto de columnas obligatorias
     id_activo = pl.lit(fuente_nombre).alias("id_activo")
     plataforma = pl.lit("facebook").alias("plataforma")
@@ -64,28 +65,23 @@ def mapear_esquema_crudo(df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, 
     # Si es un dataset de POSTS (tiene likes, comments, shares, etc.)
     if "text" in cols and ("likes" in cols or "shares" in cols or "comments" in cols):
         texto_publicacion = pl.col("text").fill_null("").alias("texto_publicacion")
-        
+
         # Sumar reacciones totales
         likes_expr = pl.col("likes").fill_null(0) if "likes" in cols else pl.lit(0)
         shares_expr = pl.col("shares").fill_null(0) if "shares" in cols else pl.lit(0)
         comments_expr = pl.col("comments").fill_null(0) if "comments" in cols else pl.lit(0)
         reacciones_totales = (likes_expr + shares_expr + comments_expr).cast(pl.Int64).alias("reacciones_totales")
-        
+
         if "url" in cols:
             url = pl.col("url").alias("url")
             # Extraer el identificador de la página de la URL
-            id_activo = (
-                pl.col("url")
-                .str.extract(r"facebook\.com/([^/]+)/")
-                .fill_null(fuente_nombre)
-                .alias("id_activo")
-            )
-            
+            id_activo = pl.col("url").str.extract(r"facebook\.com/([^/]+)/").fill_null(fuente_nombre).alias("id_activo")
+
     # Si es un dataset de COMENTARIOS (tiene postTitle, text, likesCount, facebookUrl)
     elif "text" in cols and "likesCount" in cols:
         texto_publicacion = pl.col("text").fill_null("").alias("texto_publicacion")
         reacciones_totales = pl.col("likesCount").fill_null(0).cast(pl.Int64).alias("reacciones_totales")
-        
+
         if "facebookUrl" in cols:
             url = pl.col("facebookUrl").alias("url")
             # En comentarios, asignamos el canal como el handle del candidato principal
@@ -93,23 +89,13 @@ def mapear_esquema_crudo(df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, 
             id_activo = pl.lit(fuente_nombre).alias("id_activo")
 
     # Crear el dataframe base normalizado
-    df_normalizado = df_crudo.select([
-        id_activo,
-        plataforma,
-        texto_publicacion,
-        reacciones_totales,
-        url,
-        fecha
-    ])
+    df_normalizado = df_crudo.select([id_activo, plataforma, texto_publicacion, reacciones_totales, url, fecha])
 
     # 2. Agregar número de seguidores desde el catálogo
     # Convertimos las llaves del catálogo a expresiones Polars
     # Si no se encuentra en el catálogo, por defecto se asignan 500 seguidores
     df_normalizado = df_normalizado.with_columns(
-        pl.col("id_activo")
-        .replace(catalogo_seguidores, default=500)
-        .cast(pl.Int64)
-        .alias("seguidores_cuenta_origen")
+        pl.col("id_activo").replace(catalogo_seguidores, default=500).cast(pl.Int64).alias("seguidores_cuenta_origen")
     )
 
     # 3. Calcular tasa de interacción
@@ -121,11 +107,13 @@ def mapear_esquema_crudo(df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, 
     )
 
     # 4. Agregar metadatos de capa
-    df_normalizado = df_normalizado.with_columns([
-        pl.lit("facebook_apify").alias("_fuente"),
-        pl.lit(date.today().isoformat()).alias("_fecha_ingesta"),
-        pl.lit(True).alias("is_valid"),
-    ])
+    df_normalizado = df_normalizado.with_columns(
+        [
+            pl.lit("facebook_apify").alias("_fuente"),
+            pl.lit(date.today().isoformat()).alias("_fecha_ingesta"),
+            pl.lit(True).alias("is_valid"),
+        ]
+    )
 
     # 5. Aplicar anonimización PII sobre la columna de texto
     df_normalizado = anonimizar_polars(df_normalizado, "texto_publicacion")
@@ -142,27 +130,27 @@ def detectar_anomalias_engagement(df: pl.DataFrame, contamination: float = 0.05)
         return df.with_columns(pl.lit(False).alias("is_anomaly"))
 
     logger.info("Entrenando Isolation Forest para detección de anomalías en engagement.")
-    
+
     # Extraer variables para entrenamiento
     features = df.select(["reacciones_totales", "tasa_interaccion"]).to_numpy()
-    
+
     # Rellenar NaNs por seguridad
     features = np.nan_to_num(features, nan=0.0)
 
     # Entrenar Isolation Forest
     model = IsolationForest(contamination=contamination, random_state=42)
     preds = model.fit_predict(features)  # Inliers = 1, Outliers = -1
-    
+
     # Convertir a bandera booleana: True para anomalías, False para inliers
     is_anomaly = preds == -1
-    
+
     # Inyectar la columna en Polars
-    return df.with_columns(
-        pl.Series("is_anomaly", is_anomaly)
-    )
+    return df.with_columns(pl.Series("is_anomaly", is_anomaly))
 
 
-def ejecutar_compuerta_calidad(df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, int] = None, fuente_nombre: str = "Unknown") -> pl.DataFrame:
+def ejecutar_compuerta_calidad(
+    df_crudo: pl.DataFrame, catalogo_seguidores: Dict[str, int] = None, fuente_nombre: str = "Unknown"
+) -> pl.DataFrame:
     """Aplica controles de calidad, normalización y detección de anomalías.
 
     Args:

@@ -1,20 +1,23 @@
-from apify_client import ApifyClient
 import json
+import logging
 import os
 from datetime import datetime
-from typing import List, Dict, Any
-import logging
+from typing import Any, Dict, List
+
+from apify_client import ApifyClient
 
 # Token de Apify
 APIFY_TOKEN = os.getenv("APIFY_API_TOKEN") or os.getenv("APIFY_TOKEN", "[REDACTED_FROM_ENV]")
 
 logger = logging.getLogger(__name__)
 
+
 class MassCollector:
     """
     Clase para la recolección masiva de comentarios desde posts de redes sociales
     usando la API de Apify.
     """
+
     def __init__(self) -> None:
         if not APIFY_TOKEN or "REDACTED" in APIFY_TOKEN or "TU_TOKEN" in APIFY_TOKEN:
             raise ValueError("Token de Apify no configurado. Configura APIFY_API_TOKEN (o APIFY_TOKEN legado).")
@@ -47,27 +50,30 @@ class MassCollector:
 
             data: List[Dict[str, Any]] = []
             for item in self.client.dataset(run["defaultDatasetId"]).iterate_items():
-                data.append({
-                    "source": "instagram",
-                    "source_url": post_url,
-                    "candidato": "multiple",  # Para análisis agregado
-                    "user": item.get("ownerUsername"),
-                    "text": item.get("text"),
-                    "date": item.get("timestamp"),
-                    "likes": item.get("likesCount", 0),
-                    "shares": item.get("sharesCount", 0),
-                    "comments": item.get("commentsCount", 0),
-                    "collected_at": datetime.now().isoformat()
-                })
+                data.append(
+                    {
+                        "source": "instagram",
+                        "source_url": post_url,
+                        "candidato": "multiple",  # Para análisis agregado
+                        "user": item.get("ownerUsername"),
+                        "text": item.get("text"),
+                        "date": item.get("timestamp"),
+                        "likes": item.get("likesCount", 0),
+                        "shares": item.get("sharesCount", 0),
+                        "comments": item.get("commentsCount", 0),
+                        "collected_at": datetime.now().isoformat(),
+                    }
+                )
             logger.info(f"[OK] Extraidos {len(data)} comentarios")
             return data
         except Exception as e:
             logger.exception(f"[ERROR] Error al recolectar comentarios: {str(e)}")
             return []
 
+
 # --- MISIÓN: RECOLECCIÓN MASIVA NAYARIT ---
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
     collector = MassCollector()
     all_data = []
 
@@ -76,7 +82,6 @@ if __name__ == "__main__":
         # Geraldine Ponce (Alcaldesa Tepic)
         "https://www.instagram.com/p/COHJ9TSnfT6/",  # Registro candidatura 2021
         "https://www.instagram.com/p/COEP_fonski/",  # Campaña 2021
-
         # Aquí agregaríamos más posts de:
         # - Andrea Navarro (cuando encontremos sus posts públicos)
         # - Héctor Santana
@@ -86,7 +91,7 @@ if __name__ == "__main__":
 
     print("=== INICIANDO RECOLECCIÓN MASIVA ===")
     print(f"Objetivos: {len(targets)} posts")
-    print(f"Límite por post: 20 comentarios")
+    print("Límite por post: 20 comentarios")
     print("=" * 50)
 
     for target in targets:
@@ -106,7 +111,7 @@ if __name__ == "__main__":
         json.dump(all_data, f, indent=4, ensure_ascii=False)
 
     print("=" * 50)
-    print(f"[COMPLETADO] MISION FINALIZADA")
+    print("[COMPLETADO] MISION FINALIZADA")
     print(f"Total de comentarios recolectados: {len(all_data)}")
     print(f"Archivo guardado en: {output_path}")
     print("\nProximo paso: Ejecutar sensemaker_engine.py para analisis")
