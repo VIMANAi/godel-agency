@@ -3,10 +3,9 @@ BIGQUERY ADAPTER: SAIEL INTELLIGENCE
 Módulo para persistencia de datos analíticos en BigQuery.
 """
 
-import os
-from google.cloud import bigquery
-from typing import List, Dict
 import pandas as pd
+from google.cloud import bigquery
+
 
 class BigQueryAdapter:
     def __init__(self, project_id=None):
@@ -53,6 +52,7 @@ class BigQueryAdapter:
         job = self.client.load_table_from_dataframe(df, self.table_id, job_config=job_config)
         job.result()
         print(f"Cargadas {len(df)} filas en {self.table_id}.")
+
 
 if __name__ == "__main__":
     adapter = BigQueryAdapter()

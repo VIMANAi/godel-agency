@@ -54,3 +54,26 @@ testpaths = [
     "src/tests",
     "src/agents",
 ]
+
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["notebooks", "30_00_NOTEBOOKS", "80_00_OUTPUTS", "archive"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_configs = true
+exclude = "(^notebooks/|^30_00_NOTEBOOKS/|^archive/|\\.ipynb$)"
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+fail_under = 60
+show_missing = true

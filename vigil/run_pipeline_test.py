@@ -1,16 +1,21 @@
 """Script de integración de punta a punta para probar y ejecutar el pipeline MVP de Vigil/FIEL."""
 
 import logging
-import os
-import yaml
 from pathlib import Path
+
 import polars as pl
+import yaml
 from dotenv import load_dotenv
 
-from src.processing.quality_gate import ejecutar_compuerta_calidad, validar_esquema_silver, mapear_esquema_crudo
 from src.analysis.semantic_agent import AgenteSemanticoElectoral
-from src.graph.network_analyzer import build_entity_network, detect_louvain_communities, calculate_k_core, calcular_sincronia_cib
 from src.analysis.simulator import WhatIfSimulator
+from src.graph.network_analyzer import (
+    build_entity_network,
+    calcular_sincronia_cib,
+    calculate_k_core,
+    detect_louvain_communities,
+)
+from src.processing.quality_gate import ejecutar_compuerta_calidad, validar_esquema_silver
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -89,10 +94,12 @@ def main():
     logger.info(f"Alertas CIB encontradas: {len(alertas_cib)}")
 
     # Unir datasets para el grafo
-    df_combined = pl.concat([
-        posts_enriched.select(["keywords_extracted", "texto_publicacion"]),
-        comments_enriched.select(["keywords_extracted", "texto_publicacion"])
-    ])
+    df_combined = pl.concat(
+        [
+            posts_enriched.select(["keywords_extracted", "texto_publicacion"]),
+            comments_enriched.select(["keywords_extracted", "texto_publicacion"]),
+        ]
+    )
 
     G = build_entity_network(df_combined)
     comunidades = detect_louvain_communities(G)
@@ -101,10 +108,16 @@ def main():
 
     # 6. Simulación What-If y Reporte Final
     logger.info("--- Fase 5: Ejecutando Simulación Estratégica ---")
-    df_gold = pl.concat([
-        posts_enriched.select(["candidato", "sentimiento", "reacciones_totales", "texto_publicacion", "keywords_extracted"]),
-        comments_enriched.select(["candidato", "sentimiento", "reacciones_totales", "texto_publicacion", "keywords_extracted"])
-    ])
+    df_gold = pl.concat(
+        [
+            posts_enriched.select(
+                ["candidato", "sentimiento", "reacciones_totales", "texto_publicacion", "keywords_extracted"]
+            ),
+            comments_enriched.select(
+                ["candidato", "sentimiento", "reacciones_totales", "texto_publicacion", "keywords_extracted"]
+            ),
+        ]
+    )
 
     simulator = WhatIfSimulator()
     df_base = simulator.calcular_scores_base(df_gold)
@@ -132,31 +145,39 @@ def main():
         f.write("| Candidato | PDIV Score | Sentimiento Score | Volumen Score | Engagement Score |\n")
         f.write("| :--- | :---: | :---: | :---: | :---: |\n")
         for row in df_base.iter_rows(named=True):
-            f.write(f"| **{row['candidato']}** | {round(row['pdiv_score'], 2)} | {round(row['sentimiento_score'], 2)} | {round(row['volumen_score'], 2)} | {round(row['engagement_score'], 2)} |\n")
+            f.write(
+                f"| **{row['candidato']}** | {round(row['pdiv_score'], 2)} | {round(row['sentimiento_score'], 2)} | {round(row['volumen_score'], 2)} | {round(row['engagement_score'], 2)} |\n"
+            )
 
         f.write("\n## 2. Detección de Coordinación Sospechosa (CIB)\n")
         if alertas_cib:
             f.write("Se han detectado indicios de comportamiento inauténtico coordinado:\n\n")
             for idx, a in enumerate(alertas_cib):
-                f.write(f"- **Alerta {idx+1} ({a['status']})**: Sincronía $S_T$ = **{a['sincronia_s_t']}** | Desviación: {a['desviacion_segundos']}s\n")
+                f.write(
+                    f"- **Alerta {idx+1} ({a['status']})**: Sincronía $S_T$ = **{a['sincronia_s_t']}** | Desviación: {a['desviacion_segundos']}s\n"
+                )
                 f.write(f"  * Páginas: {', '.join(a['paginas_involucradas'])}\n")
                 f.write(f"  * Texto: *\"{a['texto_coordinado']}\"*\n")
         else:
             f.write("No se detectó actividad de publicación síncrona sospechosa ($S_T > 0.85$ en ventana de 300s).\n")
 
         f.write("\n## 3. Análisis de Sensibilidad Temática (What-If Simulator)\n")
-        f.write("Simulación de incremento de +40% en tópicos de Gestión Social ('amor', 'cercanía') para Beatriz Estrada:\n\n")
+        f.write(
+            "Simulación de incremento de +40% en tópicos de Gestión Social ('amor', 'cercanía') para Beatriz Estrada:\n\n"
+        )
 
         f.write("| Candidato | PDIV Base | PDIV Simulado | Diferencia | Sentimiento Simulado |\n")
         f.write("| :--- | :---: | :---: | :---: | :---: |\n")
         for row in df_sim.iter_rows(named=True):
-            f.write(f"| **{row['candidato']}** | {round(row['pdiv_score'], 2)} | {round(row['pdiv_score_sim'], 2)} | **{row['dif_pdiv']}** | {round(row['sentimiento_score_sim'], 2)} |\n")
+            f.write(
+                f"| **{row['candidato']}** | {round(row['pdiv_score'], 2)} | {round(row['pdiv_score_sim'], 2)} | **{row['dif_pdiv']}** | {round(row['sentimiento_score_sim'], 2)} |\n"
+            )
 
         f.write("\n\n*Informe de consultoría técnica generado automáticamente por FIEL MVP.*")
 
-    logger.info(f"==================================================")
+    logger.info("==================================================")
     logger.info(f"PROCESAMIENTO EXITOSO. REPORTE EN: {reporte_path}")
-    logger.info(f"==================================================")
+    logger.info("==================================================")
 
 
 if __name__ == "__main__":

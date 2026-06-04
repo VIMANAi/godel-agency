@@ -1,8 +1,8 @@
 # REPORT DE ANÁLISIS TÉCNICO Y DISEÑO DE SISTEMA: PROYECTO VIGIL
-> **Rol:** Data Analyst, ETL Engineer & System Designer Architect  
-> **Fecha:** 2026-06-01 (Corte Técnico)  
-> **Ubicación:** Raíz de Vigil (`/home/fratfn/Desarrollo/Agency/vigil/`)  
-> **Contexto:** Proceso Electoral Nayarit 2026 (Tepic)  
+> **Rol:** Data Analyst, ETL Engineer & System Designer Architect
+> **Fecha:** 2026-06-01 (Corte Técnico)
+> **Ubicación:** Raíz de Vigil (`/home/fratfn/Desarrollo/Agency/vigil/`)
+> **Contexto:** Proceso Electoral Nayarit 2026 (Tepic)
 
 ---
 
@@ -28,7 +28,7 @@ El proyecto **Vigil** es un sistema agnóstico de adquisición, normalización, 
 ## 2. DISEÑO Y ARQUITECTURA DE SISTEMA (SYSTEM DESIGN)
 
 ### 2.1 El Principio del Sistema Agnóstico
-La premisa arquitectónica de Vigil es el **desacoplamiento total** entre la **lógica de cómputo/pipeline** (código en `src/` y `notebooks/`) y la **configuración operativa** (`config/config.yaml`). 
+La premisa arquitectónica de Vigil es el **desacoplamiento total** entre la **lógica de cómputo/pipeline** (código en `src/` y `notebooks/`) y la **configuración operativa** (`config/config.yaml`).
 
 Para auditar un nuevo municipio, estado o cambiar la lista de candidatos monitoreados, **no se requiere alterar una sola línea de código**. Toda la parametrización (candidatos, alias, fuentes de monitoreo, umbrales de sincronía y volúmenes mínimos viables) se controla de manera declarativa en `config.yaml`.
 

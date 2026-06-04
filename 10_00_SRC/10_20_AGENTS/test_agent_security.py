@@ -7,8 +7,8 @@ Este script valida de forma estática que las políticas de menor privilegio,
 hooks interactivos y rutas permitidas se comporten exactamente según lo diseñado.
 """
 
-import sys
 from config.security import is_path_allowed, is_writing_outside
+
 
 def run_tests():
     print("=" * 60)
@@ -22,7 +22,7 @@ def run_tests():
     unsafe_system_path = "/etc/passwd"
 
     print("\n🔍 Validando políticas de acceso a directorios (is_path_allowed):")
-    
+
     # Caso 1: Ruta segura en Agency
     assert is_path_allowed(safe_agency_path) is True, "❌ Falla: Debería permitir acceso en Agency"
     print(f"   [OK] Permitida ruta de Agency: {safe_agency_path}")
@@ -48,12 +48,15 @@ def run_tests():
 
     # Caso 6: Escritura en zona insegura
     args_unsafe = {"TargetFile": unsafe_home_path}
-    assert is_writing_outside(args_unsafe) is True, "❌ Falla: Escritura en zona insegura debería exigir Hook interactivo"
+    assert (
+        is_writing_outside(args_unsafe) is True
+    ), "❌ Falla: Escritura en zona insegura debería exigir Hook interactivo"
     print(f"   [OK] Escritura externa atrapada para confirmación: {unsafe_home_path}")
 
     print("\n" + "=" * 60)
     print("🎉 TODAS LAS PRUEBAS DE SEGURIDAD PASARON CON ÉXITO [100% OK]")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     run_tests()

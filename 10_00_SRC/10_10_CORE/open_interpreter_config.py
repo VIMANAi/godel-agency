@@ -31,10 +31,10 @@ else:
     # Windows
     PROYECTO_DIR = Path("G:/Mi unidad/SAIEL_Inteligencia_Politica")
 
-DATA_RAW       = PROYECTO_DIR / "data/raw"
+DATA_RAW = PROYECTO_DIR / "data/raw"
 DATA_PROCESSED = PROYECTO_DIR / "data/processed"
-ENGINE_DIR     = PROYECTO_DIR / "engine"
-REPORTS_DIR    = PROYECTO_DIR / "reports"
+ENGINE_DIR = PROYECTO_DIR / "engine"
+REPORTS_DIR = PROYECTO_DIR / "reports"
 
 # ─── SYSTEM PROMPT PARA OPEN INTERPRETER ──────────────────────────────────────
 
@@ -57,11 +57,11 @@ Trabajas para una consultoría de inteligencia política en México, específica
 ## HERRAMIENTAS QUE PUEDES EJECUTAR
 1. **Sensemaker** → `python {ENGINE_DIR}/sensemaker_engine.py`
    - Descubre narrativas y clustering de temas en los datos
-   
+
 2. **Gemini Cleaner** → `python {ENGINE_DIR}/gemini_cleaner.py --input data/raw/ARCHIVO.json`
    - Limpia y clasifica comentarios con Gemini Flash
-   
-3. **Local Sentiment** → `python {ENGINE_DIR}/local_sentiment.py`  
+
+3. **Local Sentiment** → `python {ENGINE_DIR}/local_sentiment.py`
    - Análisis de sentimiento sin API (100% local con Ollama)
 
 4. **Datos disponibles** → `ls {DATA_RAW}` / `ls {DATA_PROCESSED}`
@@ -89,10 +89,11 @@ Trabajas para una consultoría de inteligencia política en México, específica
 
 # ─── CONFIGURACIÓN DE OPEN INTERPRETER ───────────────────────────────────────
 
+
 def get_interpreter_config():
     """
     Retorna la configuración para Open Interpreter.
-    
+
     Uso:
         from engine.open_interpreter_config import get_interpreter_config
         import interpreter
@@ -104,23 +105,17 @@ def get_interpreter_config():
     return {
         # Modelo principal: DeepSeek para razonamiento
         "model": "ollama/deepseek-r1:7b",
-        
         # Para tareas de código puro, usar Qwen
         "code_model": "ollama/qwen2.5-coder:3b",
-        
         # Configuración de Ollama
         "api_base": "http://localhost:11434",
-        
         # System prompt personalizado
         "system_message": SAIEL_SYSTEM_PROMPT,
-        
         # Directorio de trabajo
         "cwd": str(PROYECTO_DIR),
-        
         # Opciones de seguridad
-        "safe_mode": "off",       # Permitir ejecución directa (confiamos en el entorno)
-        "auto_run": False,        # Pedir confirmación antes de ejecutar código
-        
+        "safe_mode": "off",  # Permitir ejecución directa (confiamos en el entorno)
+        "auto_run": False,  # Pedir confirmación antes de ejecutar código
         # Contexto
         "context_window": 8096,
         "max_tokens": 2048,
@@ -128,6 +123,7 @@ def get_interpreter_config():
 
 
 # ─── MODO INTERACTIVO ─────────────────────────────────────────────────────────
+
 
 def launch_saiel_interpreter():
     """Lanza Open Interpreter configurado para SAIEL."""
@@ -139,18 +135,18 @@ def launch_saiel_interpreter():
         sys.exit(1)
 
     config = get_interpreter_config()
-    
+
     # Aplicar configuración
-    interpreter.llm.model          = config["model"]
-    interpreter.llm.api_base       = config["api_base"]
-    interpreter.system_message     = config["system_message"]
-    interpreter.auto_run           = config["auto_run"]
+    interpreter.llm.model = config["model"]
+    interpreter.llm.api_base = config["api_base"]
+    interpreter.system_message = config["system_message"]
+    interpreter.auto_run = config["auto_run"]
     interpreter.llm.context_window = config["context_window"]
-    interpreter.llm.max_tokens     = config["max_tokens"]
-    
+    interpreter.llm.max_tokens = config["max_tokens"]
+
     # Cambiar al directorio del proyecto
     os.chdir(str(PROYECTO_DIR))
-    
+
     print("=" * 65)
     print("  🧠 SAIEL AGENT — Inteligencia Política con IA Local")
     print("=" * 65)

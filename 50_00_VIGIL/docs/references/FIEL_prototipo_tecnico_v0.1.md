@@ -20,25 +20,25 @@ El sistema se estructura en una tubería de procesamiento secuencial (*pipeline*
 
 ### **Crate 1: Extracción y Limpieza (social\_collector\_engine)**
 
-* **Función:** Ingesta de datos no estructurados desde APIs (Apify, redes sociales, fuentes abiertas).  
-* **Procesamiento:** Estructuración JSON, limpieza de caracteres especiales, y filtrado inicial de ruido (heurísticas de *anti-spam*).  
+* **Función:** Ingesta de datos no estructurados desde APIs (Apify, redes sociales, fuentes abiertas).
+* **Procesamiento:** Estructuración JSON, limpieza de caracteres especiales, y filtrado inicial de ruido (heurísticas de *anti-spam*).
 * **Salida:** Conjunto de datos relacional primario (ID de usuario, timestamp, texto crudo).
 
 ### **Crate 2: Inferencia de Postura (sentiment\_nli\_processor)**
 
-* **Función:** Transformación del texto natural a vectores numéricos direccionales.  
-* **Técnica:** Utilización de un modelo LLM (ej. DeepSeek local o Vertex AI Gemini) parametrizado para *Natural Language Inference* (NLI), no para sentimiento general.  
-* **Proceso:** El modelo evalúa el texto ![][image1] frente a un tema ![][image2] (hipótesis) y clasifica la relación:  
-  * *Entailment* (Apoyo): ![][image3]  
-  * *Contradiction* (Rechazo): ![][image4]  
-  * *Neutral/Unrelated*: ![][image5]  
+* **Función:** Transformación del texto natural a vectores numéricos direccionales.
+* **Técnica:** Utilización de un modelo LLM (ej. DeepSeek local o Vertex AI Gemini) parametrizado para *Natural Language Inference* (NLI), no para sentimiento general.
+* **Proceso:** El modelo evalúa el texto ![][image1] frente a un tema ![][image2] (hipótesis) y clasifica la relación:
+  * *Entailment* (Apoyo): ![][image3]
+  * *Contradiction* (Rechazo): ![][image4]
+  * *Neutral/Unrelated*: ![][image5]
 * **Salida:** *Tuplas* de (ID\_Usuario, ID\_Tema, Valor\_Postura).
 
 ### **Crate 3: Construcción de Espacio Vectorial (matrix\_builder\_core)**
 
-* **Función:** Ensamblaje de la matriz fundamental de análisis ![][image6].  
-* **Técnica:** Construcción de una matriz dispersa (*Sparse Matrix*) de ![][image7] usuarios por ![][image8] temas.  
-* **Tratamiento Matemático:** Implementación de algoritmos de imputación de valores faltantes (NaN) y centrado de medias (*mean-centering*), requerimiento estricto para las transformaciones ortogonales posteriores.  
+* **Función:** Ensamblaje de la matriz fundamental de análisis ![][image6].
+* **Técnica:** Construcción de una matriz dispersa (*Sparse Matrix*) de ![][image7] usuarios por ![][image8] temas.
+* **Tratamiento Matemático:** Implementación de algoritmos de imputación de valores faltantes (NaN) y centrado de medias (*mean-centering*), requerimiento estricto para las transformaciones ortogonales posteriores.
 * **Salida:** Matriz imputada y centrada ![][image9].
 
 ### **Crate 4: Motor de Topología y Reducción Dimensional (topology\_analytics\_engine)**
@@ -47,23 +47,23 @@ Este es el núcleo algorítmico del prototipo, implementando dos flujos matemát
 
 #### **Flujo 4A: Análisis de Componentes Principales (PCA) \- Enfoque Lineal**
 
-* **Propósito:** Extracción de índices latentes y varianza explicada.  
-* **Técnica:** Descomposición en Valores Singulares Truncada (Truncated SVD) sobre la matriz ![][image9]. ![][image10].  
+* **Propósito:** Extracción de índices latentes y varianza explicada.
+* **Técnica:** Descomposición en Valores Singulares Truncada (Truncated SVD) sobre la matriz ![][image9]. ![][image10].
 * **Aplicación:** Extracción del Primer Componente Principal (PC1) como un "Índice General de Polarización" unidimensional. Útil para modelos predictivos (regresión) y asignación de presupuestos.
 
 #### **Flujo 4B: UMAP \+ Agrupamiento de Leiden \- Enfoque Topológico**
 
-* **Propósito:** Identificación de estructuras no lineales, comunidades orgánicas y cámaras de eco (*Echo Chambers*).  
-* **Técnica:**  
-  1. Proyección de ![][image9] a un espacio bidimensional utilizando topología algebraica (*Uniform Manifold Approximation and Projection* \- UMAP).  
-  2. Construcción de un grafo de K-vecinos más cercanos (KNN) sobre las proyecciones de UMAP.  
-  3. Aplicación del algoritmo de partición de grafos de **Leiden** para maximizar la modularidad y descubrir comunidades (clústeres).  
+* **Propósito:** Identificación de estructuras no lineales, comunidades orgánicas y cámaras de eco (*Echo Chambers*).
+* **Técnica:**
+  1. Proyección de ![][image9] a un espacio bidimensional utilizando topología algebraica (*Uniform Manifold Approximation and Projection* \- UMAP).
+  2. Construcción de un grafo de K-vecinos más cercanos (KNN) sobre las proyecciones de UMAP.
+  3. Aplicación del algoritmo de partición de grafos de **Leiden** para maximizar la modularidad y descubrir comunidades (clústeres).
 * **Aplicación:** Detección de facciones políticas, segmentación de audiencias y localización de zonas de consenso (la "Táctica Polis").
 
 ## **3\. Consideraciones de Implementación (Software Engineering)**
 
-1. **Manejo de Memoria:** Dado que la matriz ![][image11] es altamente dispersa (la mayoría de los usuarios no opinan de todos los temas), el módulo matrix\_builder\_core debe implementar estructuras de datos optimizadas (ej. scipy.sparse.csr\_matrix en Python) para evitar desbordamientos de RAM (OOM errors) durante las operaciones de SVD y KNN.  
-2. **Desacoplamiento:** Cada *Crate* debe exponer una interfaz estandarizada (ej. funciones que reciben y retornan pandas.DataFrame o tensores). Esto permite actualizar el motor LLM en el Crate 2 sin afectar la lógica matemática del Crate 4\.  
+1. **Manejo de Memoria:** Dado que la matriz ![][image11] es altamente dispersa (la mayoría de los usuarios no opinan de todos los temas), el módulo matrix\_builder\_core debe implementar estructuras de datos optimizadas (ej. scipy.sparse.csr\_matrix en Python) para evitar desbordamientos de RAM (OOM errors) durante las operaciones de SVD y KNN.
+2. **Desacoplamiento:** Cada *Crate* debe exponer una interfaz estandarizada (ej. funciones que reciben y retornan pandas.DataFrame o tensores). Esto permite actualizar el motor LLM en el Crate 2 sin afectar la lógica matemática del Crate 4\.
 3. **Procesamiento Asíncrono:** La ingesta y la inferencia NLI (Crates 1 y 2\) son procesos dependientes de I/O y latencia de red. Deben diseñarse con flujos asíncronos (asyncio), mientras que los cálculos matriciales (Crate 4\) son dependientes de CPU y pueden paralelizarse.
 
 [image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAA+0lEQVR4Xu1RqwoCQRTd5CP4CFqWnX3L4gb/wKbRZrL5IUYxG/wTQdBkEMRisAiCzS8QNIjouetdGAecbNgDB/aex87dHcPIoIdt233HcV7gEzyCK/DK2gPcIrNm/yWEaCdFDHNw5Pt+JX2Z67pLClmW1Ug1z/Na0G6madaMMAzLGBapyaUCBcCTrBOgHZIHhIYYBrKJtbq85kzWcXoR2iodGjg1LwdgjqlI3y7rcRznoDdl7QswN1TENlXV+4koikooPVDaqZ4WWK/Ha05UTwucNOViR/W0QGkP3ulKVO8nEHb5Gj6/XAdcRZ2CzAsXiWfSgiAQaifD3+EN50VCY79qhP8AAAAASUVORK5CYII=>

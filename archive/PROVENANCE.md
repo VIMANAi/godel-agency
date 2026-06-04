@@ -1,6 +1,6 @@
 # PROVENANCE: Registro Formal de Procedencia y Trazabilidad Cronológica
-**Proyecto:** SAIEL — Sistema de Análisis de Inteligencia Electoral Local  
-**Generado:** 2026-05-30  
+**Proyecto:** SAIEL — Sistema de Análisis de Inteligencia Electoral Local
+**Generado:** 2026-05-30
 **Metodología:** Análisis de Series Temporales (`stat.st_mtime`) sobre el workspace `/home/fratfn/Escritorio/Agency`
 
 ---
@@ -80,5 +80,5 @@ Los reportes en estos snapshots (`REPORT_ALGORITHMS.md`, `REPORT_PIPELINE.md`, `
 
 ---
 
-*Documento generado por análisis de series temporales sobre metadatos `stat.st_mtime`.*  
+*Documento generado por análisis de series temporales sobre metadatos `stat.st_mtime`.*
 *Gobernanza Técnica SAIEL — Ingeniería Senior ETL/DevOps*

@@ -15,7 +15,7 @@ PDIV = (S × 0.40) + (V × 0.30) + (E × 0.20) + (C × 0.10)
 
 Donde:
 S = Sentimiento Promedio Normalizado (0-100)
-V = Volumen de Menciones Ajustado (0-100)  
+V = Volumen de Menciones Ajustado (0-100)
 E = Engagement Ponderado (0-100)
 C = Crecimiento Semanal (0-100)
 ```
@@ -33,7 +33,7 @@ V_ajustado = (V_raw / Factor_Población) × (1 - Penalización_Bots)
 
 Factores_Población:
 - Nayarit: 1.0 (1,181,052 hab)
-- Tepic: 0.33 (338,058 hab) 
+- Tepic: 0.33 (338,058 hab)
 - Xalisco: 0.05 (59,312 hab)
 ```
 
@@ -81,7 +81,7 @@ Penalización_Total = min(
    - Estandarización de campos
    - Detección inicial de spam
 
-2. ANÁLISIS DE SENTIMIENTO (local_sentiment.py) 
+2. ANÁLISIS DE SENTIMIENTO (local_sentiment.py)
    - Ollama + DeepSeek-R1:7b
    - Procesamiento batch (10 registros)
    - Clasificación: positivo/negativo/neutro/irónico
@@ -112,16 +112,16 @@ def _robust_min_max_normalize(self, series: pd.Series) -> pd.Series:
     q1 = series.quantile(0.25)
     q3 = series.quantile(0.75)
     iqr = q3 - q1
-    
+
     # Detectar outliers
     lower_bound = q1 - 1.5 * iqr
     upper_bound = q3 + 1.5 * iqr
-    
+
     # Clippear valores atípicos
     series_clipped = series.clip(lower_bound, upper_bound)
-    
+
     # Normalización estándar
-    return ((series_clipped - series_clipped.min()) / 
+    return ((series_clipped - series_clipped.min()) /
             (series_clipped.max() - series_clipped.min())) * 100
 ```
 
@@ -133,7 +133,7 @@ engagement_log = np.log1p(engagement_weighted)
 
 ### 3. Validación Estadística
 ```python
-def validate_correlation(self, pdiv_results: pd.DataFrame, 
+def validate_correlation(self, pdiv_results: pd.DataFrame,
                         poll_data: Dict[str, float]) -> float:
     # Correlación de Pearson para validación
     correlation = np.corrcoef(pdiv_values, poll_values)[0, 1]

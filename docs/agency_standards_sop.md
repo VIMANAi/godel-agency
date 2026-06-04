@@ -28,7 +28,7 @@ El principio de **Separación de Responsabilidades (Separation of Concerns - SoC
 └────────────────────────┘          └────────────────────────┘          └────────────────────────┘
 ```
 
-1. **Core Engine (`godel_agent.py`)**: 
+1. **Core Engine (`godel_agent.py`)**:
    * **Responsabilidad**: Orquestar el ciclo de vida de la sesión (Checkpoint-and-Resume), interactuar con el SDK de Google Antigravity, y servir de router agnóstico.
    * **Regla de Diseño**: No debe contener lógica de negocio específica de ningún dominio (ej. sin palabras clave de política mexicana, sin CURP/INE hardcodeados). Se alimenta dinámicamente de dependencias externas.
 2. **Security & Governance Layer (`security.py`, `gateway.py`, `registry.py`)**:
@@ -128,7 +128,7 @@ Toda tarea compleja o plan de sprint orquestado por el **Tech Lead (`tool_sequen
 El estándar de **Procedencia (Provenance / Linaje)** garantiza la trazabilidad absoluta y la inmutabilidad de la cadena de decisiones de la flota de agentes, asegurando que cada salida, recomendación o código ejecutado pueda auditarse hacia atrás hasta su origen exacto:
 
 ```
-[Output / Report] 
+[Output / Report]
       │
       ▼ (Audit / Traceback)
 ┌────────────────────────────────────────────────────────┐

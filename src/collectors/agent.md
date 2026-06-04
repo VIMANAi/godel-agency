@@ -14,8 +14,8 @@ Los recopiladores de datos se encargan de descargar y formatear comentarios y m�
 
 ### 1. 📳 Recopilador Social Apify
 *   **Módulo**: [`social_collector.py`](file:///home/fratfn/Desarrollo/Agency/src/collectors/social_collector.py)
-*   **Función**: Invoca actores de Apify en la nube de forma segura utilizando la API KEY centralizada en tu bóveda de variables de entorno (`APIFY_API_TOKEN`).
-*   **Uso**: Descarga comentarios de un post o perfil específico y los almacena localmente en la carpeta de datos crudos (`data/raw/`).
+*   **Función**: Invoca actores de Apify en la nube de forma segura utilizando la API KEY centralizada en variables de entorno (`APIFY_API_TOKEN`, con fallback legado `APIFY_TOKEN`).
+*   **Uso**: Descarga comentarios de un post o perfil específico y los almacena localmente en la carpeta de datos crudos separando capas `real` y `synthetic` (`data/raw/<plataforma>/<capa>/` y réplica en `20_00_DATA/20_10_RAW/<plataforma>/<capa>/`).
 *   **Comando de Invocación desde Agentes**:
     Puedes llamarlo de forma directa en Python importando su función principal o ejecutando el script como un subproceso ligero:
     `python src/collectors/social_collector.py --target <target_url>`

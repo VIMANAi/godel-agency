@@ -8,6 +8,7 @@ from google.cloud import bigquery
 from typing import List, Dict
 import pandas as pd
 
+
 class BigQueryAdapter:
     def __init__(self, project_id=None):
         self.client = bigquery.Client(project=project_id)
@@ -53,6 +54,7 @@ class BigQueryAdapter:
         job = self.client.load_table_from_dataframe(df, self.table_id, job_config=job_config)
         job.result()
         print(f"Cargadas {len(df)} filas en {self.table_id}.")
+
 
 if __name__ == "__main__":
     adapter = BigQueryAdapter()

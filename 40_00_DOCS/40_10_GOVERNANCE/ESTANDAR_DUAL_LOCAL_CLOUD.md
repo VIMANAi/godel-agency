@@ -29,7 +29,7 @@ El sistema SAIEL implementa una arquitectura modular de "Proveedores de Intelige
 ---
 
 ## 🚦 MECANISMO DE CONMUTACIÓN (THE SWITCH)
-La selección del motor se realiza mediante la variable de entorno `SAIEL_ENGINE_MODE` (`local` | `cloud`). 
+La selección del motor se realiza mediante la variable de entorno `SAIEL_ENGINE_MODE` (`local` | `cloud`).
 
 ### Ejemplo de Uso en Sandbox:
 ```python

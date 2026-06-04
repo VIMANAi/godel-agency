@@ -1,8 +1,8 @@
 # Thin Adapter to godel-core shared package
+import os
 import sys
 from pathlib import Path
 
-import os
 
 def _get_core_path():
     env_path = os.environ.get("GODEL_CORE_PATH")
@@ -16,6 +16,7 @@ def _get_core_path():
                 return sibling
             break
     return Path("/home/fratfn/Desarrollo/godel-core")
+
 
 CORE_PATH = _get_core_path()
 if str(CORE_PATH) not in sys.path:

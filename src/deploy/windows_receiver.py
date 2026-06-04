@@ -13,31 +13,31 @@ Uso:
     python engine/windows_receiver.py --once      # Procesar lo que haya ahora
 """
 
-import os
-import json
-import time
-import shutil
 import argparse
+import json
+import os
+import shutil
 import subprocess
-from pathlib import Path
+import time
 from datetime import datetime
+from pathlib import Path
 
 # ─── RUTAS ────────────────────────────────────────────────────────────────────
-
 from dotenv import load_dotenv
+
 load_dotenv()
 
-DRIVE_DIR      = Path(os.getenv("SAIEL_DRIVE_DIR", "G:/Mi unidad/SAIEL_Inteligencia_Politica"))
-LOCAL_DIR      = Path(os.getenv("SAIEL_BASE_PATH", str(Path(__file__).resolve().parents[2])))
+DRIVE_DIR = Path(os.getenv("SAIEL_DRIVE_DIR", "G:/Mi unidad/SAIEL_Inteligencia_Politica"))
+LOCAL_DIR = Path(os.getenv("SAIEL_BASE_PATH", str(Path(__file__).resolve().parents[2])))
 
-DRIVE_PROC     = DRIVE_DIR  / "data/processed"
-DRIVE_REPORTS  = DRIVE_DIR  / "reports"
+DRIVE_PROC = DRIVE_DIR / "data/processed"
+DRIVE_REPORTS = DRIVE_DIR / "reports"
 
-LOCAL_PROC     = LOCAL_DIR  / "data/processed"
-LOCAL_REPORTS  = LOCAL_DIR  / "reports"
-LOCAL_ENGINE   = LOCAL_DIR  / "src/core"
+LOCAL_PROC = LOCAL_DIR / "data/processed"
+LOCAL_REPORTS = LOCAL_DIR / "reports"
+LOCAL_ENGINE = LOCAL_DIR / "src/core"
 
-INTERVALO_SEG  = 30   # Revisar cada 30 segundos
+INTERVALO_SEG = 30  # Revisar cada 30 segundos
 
 # Archivos que monitoreamos (generados por Parrot)
 ARCHIVOS_ESPERADOS = [
@@ -51,6 +51,7 @@ ARCHIVOS_ESPERADOS = [
 archivos_procesados = set()
 
 # ─── FUNCIONES ────────────────────────────────────────────────────────────────
+
 
 def log(msg: str, nivel: str = "INFO"):
     timestamp = datetime.now().strftime("%H:%M:%S")
@@ -86,10 +87,12 @@ def verificar_crisis(ruta_json: Path) -> list:
             negativos = sum(1 for d in datos if d.get("sentimiento") == "negativo")
             pct_negativo = negativos / total * 100
             if pct_negativo > 60:
-                alertas.append({
-                    "severidad": "ALTA",
-                    "mensaje": f"Sentimiento negativo crítico: {pct_negativo:.0f}% ({negativos}/{total} comentarios)"
-                })
+                alertas.append(
+                    {
+                        "severidad": "ALTA",
+                        "mensaje": f"Sentimiento negativo crítico: {pct_negativo:.0f}% ({negativos}/{total} comentarios)",
+                    }
+                )
 
     except Exception as e:
         log(f"Error leyendo {ruta_json.name}: {e}", "ERROR")
@@ -124,7 +127,7 @@ def generar_reporte_express(archivo: Path) -> str:
                 barra = "█" * int(n / total * 20)
                 reporte.append(f"  {s:10} {barra} {n} ({n/total*100:.0f}%)")
 
-            reporte.append(f"\n  TOP TEMAS:")
+            reporte.append("\n  TOP TEMAS:")
             for tema, n in sorted(temas.items(), key=lambda x: -x[1])[:5]:
                 reporte.append(f"  • {tema:28} {n:3} menciones")
 
@@ -151,10 +154,7 @@ def lanzar_sensemaker_local():
         log("Lanzando Sensemaker en Windows...", "INFO")
         try:
             result = subprocess.run(
-                ["python", str(sm_path)],
-                cwd=str(LOCAL_DIR),
-                capture_output=True, text=True,
-                timeout=120
+                ["python", str(sm_path)], cwd=str(LOCAL_DIR), capture_output=True, text=True, timeout=120
             )
             if result.returncode == 0:
                 log("Sensemaker completado", "OK")
@@ -178,12 +178,12 @@ def procesar_archivo_nuevo(archivo_drive: Path):
         alertas = verificar_crisis(archivo_local)
         if alertas:
             print()
-            print("  🚨 " + "="*55)
+            print("  🚨 " + "=" * 55)
             print("  🚨  ALERTAS DE CRISIS DETECTADAS")
-            print("  🚨 " + "="*55)
+            print("  🚨 " + "=" * 55)
             for a in alertas:
                 print(f"  🚨  [{a.get('severidad', '?')}] {a.get('mensaje', '')}")
-            print("  🚨 " + "="*55)
+            print("  🚨 " + "=" * 55)
             print()
         else:
             log("Sin alertas de crisis", "OK")
@@ -195,9 +195,9 @@ def procesar_archivo_nuevo(archivo_drive: Path):
     # 4. Si es resumen estratégico de Parrot, mostrarlo directamente
     elif archivo_drive.suffix == ".md":
         contenido = archivo_local.read_text(encoding="utf-8")
-        print("\n" + "─"*60)
+        print("\n" + "─" * 60)
         print("📝 RESUMEN ESTRATÉGICO (generado por SAIEL en Parrot):")
-        print("─"*60)
+        print("─" * 60)
         print(contenido)
 
     # 5. Copiar también a Drive/reports si aplica
@@ -292,8 +292,7 @@ def modo_once():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Monitor de sincronización Drive→Windows")
-    parser.add_argument("--once", action="store_true",
-                        help="Procesar archivos actuales y salir (sin monitor continuo)")
+    parser.add_argument("--once", action="store_true", help="Procesar archivos actuales y salir (sin monitor continuo)")
     args = parser.parse_args()
 
     if args.once:

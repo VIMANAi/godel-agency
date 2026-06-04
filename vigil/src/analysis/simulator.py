@@ -5,9 +5,10 @@ al reponderar la mezcla de temas de comunicación o simular giros de opinión p�
 """
 
 import logging
-from typing import Dict, Any, List
-import polars as pl
+from typing import Dict
+
 import numpy as np
+import polars as pl
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,16 +40,11 @@ class WhatIfSimulator:
         df_sentiment = (
             df_gold.group_by("candidato")
             .agg(pl.col("sentimiento_num").mean().alias("sentimiento_promedio"))
-            .with_columns(
-                ((pl.col("sentimiento_promedio") + 1) / 2 * 100).clip(0, 100).alias("sentimiento_score")
-            )
+            .with_columns(((pl.col("sentimiento_promedio") + 1) / 2 * 100).clip(0, 100).alias("sentimiento_score"))
         )
 
         # 2. Volumen por candidato
-        df_volume = (
-            df_gold.group_by("candidato")
-            .agg(pl.count().alias("volumen_menciones"))
-        )
+        df_volume = df_gold.group_by("candidato").agg(pl.count().alias("volumen_menciones"))
         # Normalización min-max robusta de volumen
         max_vol = df_volume["volumen_menciones"].max()
         min_vol = df_volume["volumen_menciones"].min()
@@ -58,10 +54,7 @@ class WhatIfSimulator:
         )
 
         # 3. Engagement por candidato
-        df_engagement = (
-            df_gold.group_by("candidato")
-            .agg(pl.col("reacciones_totales").sum().alias("engagement_total"))
-        )
+        df_engagement = df_gold.group_by("candidato").agg(pl.col("reacciones_totales").sum().alias("engagement_total"))
         # Normalización logarítmica robusta
         df_engagement = df_engagement.with_columns(
             pl.col("engagement_total").fill_null(0).cast(pl.Float64).log1p().alias("engagement_log")
@@ -122,27 +115,25 @@ class WhatIfSimulator:
         # 1. Asignar factores de peso por publicación
         # Por defecto cada publicación pesa 1.0. Si contiene el tema target, modificamos el peso.
         pesos_post = np.ones(df_sim.height)
-        
+
         # Buscar palabras clave en la columna texto_publicacion o keywords_extracted
         for index, row in enumerate(df_sim.iter_rows(named=True)):
             if row["candidato"] != candidato_target:
                 continue
-                
+
             texto = row.get("texto_publicacion", "").lower()
             keywords = row.get("keywords_extracted", [])
             if keywords is None:
                 keywords = []
-                
+
             for tema, factor in ajustes_temas.items():
                 tema_lc = tema.lower()
                 # Verificar si el tema está en el texto o en las keywords
                 if tema_lc in texto or any(tema_lc in str(kw).lower() for kw in keywords):
                     # Aplicar factor multiplicador (ej. +30% es 1.30, -20% es 0.80)
-                    pesos_post[index] *= (1.0 + factor)
+                    pesos_post[index] *= 1.0 + factor
 
-        df_sim = df_sim.with_columns(
-            pl.Series("peso_simulado", pesos_post)
-        )
+        df_sim = df_sim.with_columns(pl.Series("peso_simulado", pesos_post))
 
         # 2. Recalcular métricas ponderadas por peso_simulado
         # A. Sentimiento simulado
@@ -150,11 +141,9 @@ class WhatIfSimulator:
             df_sim.group_by("candidato")
             .agg(
                 (pl.col("sentimiento_num") * pl.col("peso_simulado")).sum().alias("sentimiento_num_sum"),
-                pl.col("peso_simulado").sum().alias("peso_total")
+                pl.col("peso_simulado").sum().alias("peso_total"),
             )
-            .with_columns(
-                (pl.col("sentimiento_num_sum") / pl.col("peso_total")).alias("sentimiento_promedio_sim")
-            )
+            .with_columns((pl.col("sentimiento_num_sum") / pl.col("peso_total")).alias("sentimiento_promedio_sim"))
             .with_columns(
                 ((pl.col("sentimiento_promedio_sim") + 1) / 2 * 100).clip(0, 100).alias("sentimiento_score_sim")
             )
@@ -162,10 +151,7 @@ class WhatIfSimulator:
         )
 
         # B. Volumen simulado (suma de pesos)
-        df_volume_sim = (
-            df_sim.group_by("candidato")
-            .agg(pl.col("peso_simulado").sum().alias("volumen_simulado"))
-        )
+        df_volume_sim = df_sim.group_by("candidato").agg(pl.col("peso_simulado").sum().alias("volumen_simulado"))
         max_vol_sim = df_volume_sim["volumen_simulado"].max()
         min_vol_sim = df_volume_sim["volumen_simulado"].min()
         rango_vol_sim = max_vol_sim - min_vol_sim if max_vol_sim != min_vol_sim else 1
@@ -181,9 +167,7 @@ class WhatIfSimulator:
                 .sum()
                 .alias("engagement_total_sim")
             )
-            .with_columns(
-                pl.col("engagement_total_sim").log1p().alias("engagement_log_sim")
-            )
+            .with_columns(pl.col("engagement_total_sim").log1p().alias("engagement_log_sim"))
         )
         max_eng_sim = df_engagement_sim["engagement_log_sim"].max()
         min_eng_sim = df_engagement_sim["engagement_log_sim"].min()
@@ -213,11 +197,11 @@ class WhatIfSimulator:
             .join(
                 df_simulados.select(["candidato", "pdiv_score_sim", "sentimiento_score_sim", "volumen_score_sim"]),
                 on="candidato",
-                how="inner"
+                how="inner",
             )
             .with_columns(
                 (pl.col("pdiv_score_sim") - pl.col("pdiv_score")).round(2).alias("dif_pdiv"),
-                (pl.col("sentimiento_score_sim") - pl.col("sentimiento_score")).round(2).alias("dif_sentimiento")
+                (pl.col("sentimiento_score_sim") - pl.col("sentimiento_score")).round(2).alias("dif_sentimiento"),
             )
             .sort("pdiv_score_sim", descending=True)
         )

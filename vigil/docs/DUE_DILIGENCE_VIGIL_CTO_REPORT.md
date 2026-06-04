@@ -1,10 +1,10 @@
 # DUE DILIGENCE TÉCNICA — VIGIL / NAYARIT 2026
 ## Sistema de Inteligencia Electoral Local
 
-**Fecha de análisis:** 2026-06-03  
-**Analista:** CTO / Arquitecto de Datos / Auditor de Producto  
-**Proyecto:** `/home/fnfrater/Escritorio/Dev/RndmStudio/vigil/`  
-**Mandato:** Evaluación de madurez técnica, arquitectura de datos, riesgos de continuidad  
+**Fecha de análisis:** 2026-06-03
+**Analista:** CTO / Arquitecto de Datos / Auditor de Producto
+**Proyecto:** `/home/fnfrater/Escritorio/Dev/RndmStudio/vigil/`
+**Mandato:** Evaluación de madurez técnica, arquitectura de datos, riesgos de continuidad
 
 ---
 
@@ -475,7 +475,7 @@ Análisis del notebook `02_download_ine.ipynb` y timestamps de filesystem confir
 
 ---
 
-**Fin del Reporte de Due Diligence**  
-*Documento generado por panel de expertos (CTO, Data Architect, Auditor de Producto)*  
-*Mandato: Análisis exhaustivo para toma de decisiones de dirección técnica*  
+**Fin del Reporte de Due Diligence**
+*Documento generado por panel de expertos (CTO, Data Architect, Auditor de Producto)*
+*Mandato: Análisis exhaustivo para toma de decisiones de dirección técnica*
 *Actualizado: 2026-06-03 con hallazgos post-análisis*
