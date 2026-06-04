@@ -64,41 +64,29 @@ class SecurityGateway:
     }
     
     # Candidatos públicos de Nayarit 2026 (NO filtrar como PII)
+    # Foco: Gubernatura (estatal) + Alcaldías (municipal)
     PUBLIC_CANDIDATES: Set[str] = {
-        # Gubernatura
+        # GUBERNATURA (Estatal)
         "ivideliza reyes", "ivideliza hernandez reyes",
         "graciela rodriguez", "graciela gonzalez rodriguez",
         "rosa maria carreón", "rosa maria carreon",
-        # Alcaldía Tepic
+        
+        # ALCALDÍA TEPIC (Capital)
         "geraldine ponce", "geraldine ponce de leon",
         "luis zamora", "luis zamora valdez",
         "octavio chaparro", "octavio chaparro de la torre",
         "angelica warmlander", "angelica warmlander sotelo",
-        # Otros mencionados en encuestas
-        "arturo dujaili", "arturo dujaili vega",
-        "fidel cedillo", "fidel cedillo cedillo",
-        "hugo gonzalez", "hugo gonzalez rubio",
-        "jose maria lopez", "chema lopez",
-        "enrique corona", "enrique corona yllades",
-        "manuel peralta", "manuel peralta medina",
-        "francisco corona", "pancho corona",
-        "juan de dios santos", "juan de dios",
-        "leticia torres", "leticia torres soto",
-        "gustavo cuevas", "gustavo cuevas cuellar",
-        "diego lizarraga", "diego lizarraga",
-        "cesar gomez", "cesar gomez villalpando",
-        "misael emilio", "misael emilio corral",
-        "maria del consuelo", "consuelo lopez",
-        "miguel angel", "miguel angel lopez",
-        "martha rosa", "martha rosa silva",
-        "jorge peralta", "jorge alberto peralta",
-        "francisco javier", "francisco javier hernandez",
-        "hector gonzalez", "hector gonzalez rubio",
-        "jesus alfredo", "jesus alfredo ramirez",
-        "manuel peralta", "manuel peralta medina",
-        "jorge alberto peralta", "jorge peralta",
-        "jose roberto", "jose roberto lomeli",
-        "jose de jesus", "jose de jesus hernandez",
+        
+        # ALCALDÍA COMPOSTELA
+        "luis ayon", "luis fernando ayon",
+        
+        # DIPUTADA FEDERAL (Perfil estratégico)
+        "andrea navarro", "andrea navarro garcia",
+        
+        # OTROS CANDIDATOS MUNICIPALES RELEVANTES
+        "enrique corona", "enrique corona yllades",  # Bahía de Banderas
+        "jose maria lopez", "chema lopez",  # Municipio por confirmar
+        "francisco corona", "pancho corona",  # Posible candidato municipal
     }
     
     # Partidos políticos (permitidos)

@@ -139,9 +139,25 @@ class TestSecurityGateway:
         assert result.is_clean
     
     def test_allow_luis_zamora(self, gateway):
-        """Luis Zamora es candidato público."""
+        """Luis Zamora es candidato público (Alcaldía Tepic)."""
         result = gateway.validate_payload(
             "Luis Zamora sube a 33.3% en Tepic",
+            context="survey"
+        )
+        assert result.is_clean
+    
+    def test_allow_luis_ayon(self, gateway):
+        """Luis Ayón es candidato público (Alcaldía Compostela)."""
+        result = gateway.validate_payload(
+            "Luis Ayón fortalece posición en Compostela",
+            context="survey"
+        )
+        assert result.is_clean
+    
+    def test_allow_andrea_navarro(self, gateway):
+        """Andrea Navarro es Diputada Federal (perfil estratégico)."""
+        result = gateway.validate_payload(
+            "Andrea Navarro impulsa agenda desde la Cámara",
             context="survey"
         )
         assert result.is_clean
