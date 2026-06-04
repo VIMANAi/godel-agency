@@ -58,7 +58,7 @@ testpaths = [
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py311"
 extend-exclude = ["notebooks", "30_00_NOTEBOOKS", "80_00_OUTPUTS", "archive"]
 
 [tool.ruff.lint]
@@ -66,7 +66,7 @@ select = ["E", "F", "I", "B"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 ignore_missing_imports = true
 warn_unused_configs = true
 exclude = "(^notebooks/|^30_00_NOTEBOOKS/|^archive/|\\.ipynb$)"
