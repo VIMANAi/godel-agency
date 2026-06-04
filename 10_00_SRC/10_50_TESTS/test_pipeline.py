@@ -11,6 +11,7 @@ import re
 import shutil
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
 import pandas as pd
 
@@ -122,6 +123,21 @@ class PipelineTester:
 
         return test_file
 
+    def _contains_blocked_email_domain(self, text: str) -> bool:
+        """Detecta dominios sensibles en texto usando parseo de URL cuando aplica."""
+        blocked_domains = {"email.com", "gmail.com"}
+
+        for token in text.split():
+            parsed = urlparse(token)
+            host = (parsed.hostname or "").lower()
+            if host:
+                if any(host == d or host.endswith(f".{d}") for d in blocked_domains):
+                    return True
+
+        # Fallback para texto no-URL (mantiene la intención original del test)
+        lowered = text.lower()
+        return any(domain in lowered for domain in blocked_domains)
+
     def run_test(self, test_name: str, test_func):
         """Ejecuta un test individual y registra resultados"""
         print(f"\n--- RUNNING TEST: {test_name} ---")
@@ -164,7 +180,7 @@ class PipelineTester:
 
         # 1. Emails anonimizados
         for record in processed_data:
-            if "email.com" in record["text"] or "gmail.com" in record["text"]:
+            if self._contains_blocked_email_domain(record["text"]):
                 checks.append(False)
             else:
                 checks.append(True)
