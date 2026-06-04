@@ -27,6 +27,7 @@ def orchestrate_extraction(request):
 
     target = request_json['target']
     platform = request_json.get('platform', 'instagram')
+    platform_normalized = platform.lower() if isinstance(platform, str) else "instagram"
     limit = request_json.get('limit', 20)
 
     try:
@@ -39,12 +40,12 @@ def orchestrate_extraction(request):
             "instagram": "apify/instagram-comment-scraper",
             "facebook": "apify/facebook-comments-scraper",
         }
-        actor_id = actor_by_platform.get(platform.lower(), "apify/facebook-comments-scraper")
+        actor_id = actor_by_platform.get(platform_normalized, "apify/facebook-comments-scraper")
         
         # Lógica de URL simplificada
         if target.startswith("http"):
             profile_url = target
-        elif platform.lower() == "instagram":
+        elif platform_normalized == "instagram":
             profile_url = f"https://www.instagram.com/{target}/"
         else:
             profile_url = f"https://www.facebook.com/{target}/"
@@ -61,7 +62,7 @@ def orchestrate_extraction(request):
         data = []
         for item in client.dataset(run["defaultDatasetId"]).iterate_items():
             data.append({
-                "source": platform,
+                "source": platform_normalized,
                 "target": target,
                 "text": item.get("text"),
                 "date": item.get("timestamp"),
@@ -73,7 +74,7 @@ def orchestrate_extraction(request):
         if GCS_BUCKET:
             storage_client = storage.Client()
             bucket = storage_client.bucket(GCS_BUCKET)
-            filename = f"raw/{platform}/{target}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            filename = f"raw/{platform_normalized}/{target}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             blob = bucket.blob(filename)
             blob.upload_from_string(json.dumps(data, indent=4, ensure_ascii=False), content_type='application/json')
             storage_msg = f"Guardado en gs://{GCS_BUCKET}/{filename}"
