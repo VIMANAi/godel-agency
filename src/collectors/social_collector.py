@@ -408,8 +408,13 @@ class SocialCollector:
         # Guardar en data/raw
         if data:
             filename = f"raw_{platform}_{target.lower().replace(' ', '_')}.json"
-            has_synthetic = any(record.get("is_synthetic", False) for record in data)
-            self._save_to_raw(data, filename, platform, is_synthetic=has_synthetic)
+            synthetic_data = [record for record in data if record.get("is_synthetic", False)]
+            real_data = [record for record in data if not record.get("is_synthetic", False)]
+
+            if real_data:
+                self._save_to_raw(real_data, filename, platform, is_synthetic=False)
+            if synthetic_data:
+                self._save_to_raw(synthetic_data, filename, platform, is_synthetic=True)
             
         return data
 
