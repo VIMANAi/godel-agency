@@ -30,6 +30,9 @@ def orchestrate_extraction(request):
     limit = request_json.get('limit', 20)
 
     try:
+        if not APIFY_TOKEN:
+            return json.dumps({"error": "APIFY_API_TOKEN/APIFY_TOKEN no configurado"}), 500, {'Content-Type': 'application/json'}
+
         # 1. Ejecutar Extracción en Apify
         client = ApifyClient(APIFY_TOKEN)
         actor_by_platform = {
