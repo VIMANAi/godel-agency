@@ -3,16 +3,21 @@ SAIEL CLOUD RUN ORCHESTRATOR
 Orquestador de extracción de Apify con persistencia en Google Cloud Storage.
 """
 
+import importlib
 import json
 import os
 from datetime import datetime
 
 import functions_framework
-from apify_client import ApifyClient
 from google.cloud import storage
 
+try:
+    apify_helpers = importlib.import_module("src.collectors.apify_client")
+except ModuleNotFoundError:
+    apify_helpers = importlib.import_module("collectors.apify_client")
+
 # Configuración desde Variables de Entorno
-APIFY_TOKEN = os.getenv("APIFY_API_TOKEN") or os.getenv("APIFY_TOKEN")
+APIFY_TOKEN = apify_helpers.get_apify_token()
 GCS_BUCKET = os.getenv("GCS_BUCKET")
 
 
@@ -40,33 +45,18 @@ def orchestrate_extraction(request):
                 {"Content-Type": "application/json"},
             )
 
-        # 1. Ejecutar Extracción en Apify
-        client = ApifyClient(APIFY_TOKEN)
-        actor_by_platform = {
-            "instagram": "apify/instagram-comment-scraper",
-            "facebook": "apify/facebook-comments-scraper",
-        }
-        actor_id = actor_by_platform.get(platform_normalized, "apify/facebook-comments-scraper")
-
-        # Lógica de URL simplificada
-        if target.startswith("http"):
-            profile_url = target
-        elif platform_normalized == "instagram":
-            profile_url = f"https://www.instagram.com/{target}/"
-        else:
-            profile_url = f"https://www.facebook.com/{target}/"
-
-        run_input = {
-            "directUrls": [profile_url],
-            "resultsLimit": limit,
-        }
-
         print(f"Lanzando actor Apify para: {target}")
-        run = client.actor(actor_id).call(run_input=run_input)
+        items = apify_helpers.fetch_actor_items(
+            token=APIFY_TOKEN,
+            target=target,
+            platform=platform_normalized,
+            limit=limit,
+            timeout=60,
+        )
 
         # 2. Recolectar Items
         data = []
-        for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+        for item in items:
             data.append(
                 {
                     "source": platform_normalized,

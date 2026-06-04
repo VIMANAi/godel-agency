@@ -1,0 +1,53 @@
+version: 1
+domain: godel-agency
+owner: data-platform
+
+layers:
+  raw:
+    storage: gcs
+    mutability: immutable
+    partition_keys: [source, ingestion_date]
+    required_fields:
+      - ingestion_run_id
+      - source
+      - collected_at
+      - payload
+    write_policy: append_only
+  silver:
+    storage: gcs_or_bigquery
+    mutability: overwrite_partition
+    required_fields:
+      - record_id
+      - source
+      - text
+      - published_at
+      - anonymized
+      - quality_score
+    quality_gates:
+      - schema_valid
+      - pii_policy_passed
+      - duplicate_rate_within_threshold
+  gold:
+    storage: bigquery
+    mutability: managed
+    required_fields:
+      - metric_date
+      - region
+      - candidate_id
+      - pdiv_score
+      - sentiment_score
+      - volume_score
+    quality_gates:
+      - lineage_attached
+      - sla_freshness_passed
+
+embedding:
+  provider: vertex_ai
+  chunking:
+    strategy: semantic
+    required_metadata:
+      - doc_id
+      - source
+      - jurisdiction
+      - version
+      - collected_at

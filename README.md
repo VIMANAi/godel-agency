@@ -11,15 +11,11 @@ Sistema de war room digital de análisis político multicanal con motor de orque
 
 ```
 Agency/
+├── platform/          # Pipeline cloud-first por capas (acquisition→audit)
 ├── src/
 │   ├── core/          # Motores analíticos ETL (pipeline PDIV, sentimiento, sensemaker)
-│   │   └── agent.md   # Manual Cognitivo: Módulos de datos y análisis para IA
 │   ├── agents/        # Capa agéntica y orquestadores asíncronos del sistema
-│   │   ├── agent.md   # Manual Cognitivo: Orquestación del SDK y seguridad para IA
-│   │   ├── config/    # Configuraciones modulares (Seguridad, MCP y Triggers)
-│   │   └── godel_agent.py # Orquestador (Modo Clásico + Modo SDK Avanzado)
-│   ├── collectors/    # Scrapers OSINT (Apify, Instagram, Facebook)
-│   │   └── agent.md   # Manual Cognitivo: Recolector Apify para IA
+│   ├── collectors/    # Recolección OSINT y cliente Apify compartido
 │   ├── tests/         # Suite de pruebas de integración
 │   └── deploy/        # Docker, Cloud Run, scripts de inicio
 ├── data/
@@ -28,13 +24,16 @@ Agency/
 │   └── db/            # SQLite local + schema + guía BigQuery
 ├── docs/
 │   ├── governance/    # Estándares, auditoría, guías de IA
-│   ├── manuals/       # Manuales operativos de ingeniería
+│   ├── manuals/       # Manuales operativos + matriz de módulos
 │   └── research/      # Estrategia, flujos, investigación política
+├── vigil/             # Auditoría/metodología/notebooks de vigilancia
 ├── reports/           # Dashboards HTML y reportes ejecutivos
 ├── archive/           # Legado histórico + PROVENANCE.md
 ├── .env.example       # Plantilla de configuración (copiar como .env)
 └── requirements.txt   # Dependencias del ecosistema completo
 ```
+
+**Nota de estructura:** las rutas numeradas (`10_00_*`, `40_00_*`, `50_00_*`, `80_00_*`, `90_00_*`) permanecen como legado congelado y fuera del flujo productivo activo.
 
 ---
 

@@ -61,32 +61,24 @@ class SocialCollector:
             return []
 
         try:
-            from apify_client import ApifyClient
+            import importlib
 
-            client = ApifyClient(self.apify_token)
-            actor_by_platform = {
-                "instagram": "apify/instagram-comment-scraper",
-                "facebook": "apify/facebook-comments-scraper",
-            }
-            actor_id = actor_by_platform.get(platform.lower(), "apify/facebook-comments-scraper")
-
-            profile_url = target
-            if not target.startswith("http"):
-                if platform == "instagram":
-                    profile_url = f"https://www.instagram.com/{target}/"
-                else:
-                    profile_url = f"https://www.facebook.com/{target}/"
-
-            run_input = {
-                "directUrls": [profile_url],
-                "resultsLimit": limit,
-            }
+            try:
+                apify_helpers = importlib.import_module("src.collectors.apify_client")
+            except ModuleNotFoundError:
+                apify_helpers = importlib.import_module("collectors.apify_client")
 
             print(f"Llamando a Apify Actor para {target}...")
-            run = client.actor(actor_id).call(run_input=run_input, timeout=60)
+            items = apify_helpers.fetch_actor_items(
+                token=self.apify_token,
+                target=target,
+                platform=platform,
+                limit=limit,
+                timeout=60,
+            )
 
             data = []
-            for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+            for item in items:
                 published_at = item.get("timestamp", datetime.now().isoformat())
                 entity_id = item.get("id", self._make_entity_id(item.get("text", ""), published_at))
                 record = {

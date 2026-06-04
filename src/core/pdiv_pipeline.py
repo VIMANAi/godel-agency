@@ -17,13 +17,11 @@ import pandas as pd
 # Importar componentes del sistema
 try:
     from src.core.data_ingestion import AnonymizationConfig, DataIngestionPipeline
-    from src.core.local_sentiment import analizar_lote_local, cargar_comentarios, verificar_ollama
     from src.core.pdiv_calculator import PDIVCalculator
     from src.core.sensemaker_engine import IndustrialSensemaker
 except ImportError:
     try:
         from core.data_ingestion import AnonymizationConfig, DataIngestionPipeline
-        from core.local_sentiment import analizar_lote_local, cargar_comentarios, verificar_ollama
         from core.pdiv_calculator import PDIVCalculator
         from core.sensemaker_engine import IndustrialSensemaker
     except ImportError:
@@ -104,7 +102,8 @@ class PDIVPipeline:
 
         # Cargar datos procesados
         if filename:
-            processed_files = [self.processed_path / f"{filename.stem}_processed.json"]
+            filename_stem = Path(filename).stem
+            processed_files = [self.processed_path / f"{filename_stem}_processed.json"]
         else:
             processed_files = list(self.processed_path.glob("*_processed.json"))
 
@@ -194,7 +193,10 @@ class PDIVPipeline:
         use_cloud = os.getenv("SAIEL_USE_CLOUD", "true").lower() == "true"
 
         if use_cloud:
-            from engine.vertex_adapter import VertexSentimentAnalyzer
+            try:
+                from src.core.vertex_adapter import VertexSentimentAnalyzer
+            except ImportError:
+                from core.vertex_adapter import VertexSentimentAnalyzer
 
             analyzer = VertexSentimentAnalyzer()
             texts = df["text"].tolist()
