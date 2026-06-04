@@ -144,7 +144,7 @@ class SocialCollector:
                             if isinstance(records, list):
                                 for r in records:
                                     cand = r.get("candidate", r.get("candidato", ""))
-                                    if target.lower() in str(cand).lower() or not cand:
+                                    if self._matches_target(cand, target):
                                         all_comments.append(r)
                     elif file_path.suffix == ".jsonl":
                         with open(file_path, "r", encoding="utf-8") as f:
@@ -153,7 +153,7 @@ class SocialCollector:
                                     continue
                                 r = json.loads(line)
                                 cand = r.get("candidate", r.get("candidato", ""))
-                                if target.lower() in str(cand).lower() or not cand:
+                                if self._matches_target(cand, target):
                                     all_comments.append(r)
                 except Exception:
                     pass
@@ -166,6 +166,7 @@ class SocialCollector:
             for item in sampled:
                 published_at = item.get("date", item.get("timestamp", datetime.now().isoformat()))
                 text = item.get("text", item.get("comment", ""))
+                entity_id = item.get("entity_id", item.get("id", self._make_entity_id(text, published_at)))
                 formatted.append({
                     "id": item.get("id", item.get("_id", self._make_entity_id(text, published_at))),
                     "source": platform,
@@ -181,7 +182,7 @@ class SocialCollector:
                     "collected_at": datetime.now().isoformat(),
                     "source_platform": platform,
                     "entity_type": item.get("entity_type", "comment"),
-                    "entity_id": item.get("entity_id", item.get("id", self._make_entity_id(item.get("text", ""), item.get("date", item.get("timestamp", datetime.now().isoformat()))))),
+                    "entity_id": entity_id,
                     "parent_post_id": item.get("parent_post_id", item.get("postId")),
                     "candidate_id": item.get("candidate_id", self._make_candidate_id(target)),
                     "candidate_name": item.get("candidate_name", target),
@@ -205,7 +206,7 @@ class SocialCollector:
         print(f"Ejecutando Scraping Directo Local para '{target}'...")
         
         # Intentar scraping ligero de portales locales abiertos
-        snippets = []
+        web_fragments = []
         try:
             # Simulamos consulta a buscador de noticias o posts
             url = f"https://www.google.com/search?q={target}+tepic+nayarit+debate"
@@ -215,15 +216,15 @@ class SocialCollector:
             if response.status_code == 200:
                 # Extraemos algunos snippets como comentarios reales
                 soup = BeautifulSoup(response.text, 'html.parser')
-                snippets = [div.text for div in soup.find_all('div') if len(div.text) > 40][:5]
-                if snippets:
-                    print(f"Scrapeados {len(snippets)} fragmentos web reales.")
+                web_fragments = [div.text for div in soup.find_all('div') if len(div.text) > 40][:5]
+                if web_fragments:
+                    print(f"Scrapeados {len(web_fragments)} fragmentos web reales.")
         except Exception:
             pass
         
-        if snippets:
+        if web_fragments:
             data = []
-            for i, text in enumerate(snippets[:limit]):
+            for i, text in enumerate(web_fragments[:limit]):
                 published_at = (datetime.now() - timedelta(hours=i)).isoformat()
                 record = {
                     "id": self._make_entity_id(text, published_at),
@@ -341,12 +342,20 @@ class SocialCollector:
         """Helper para emular bots de repetición en testeo"""
         return "spammer_bot_tepic"
 
+    def _matches_target(self, candidate_value: Any, target: str) -> bool:
+        normalized_target = target.strip().lower()
+        if not normalized_target:
+            return False
+        if candidate_value is None or str(candidate_value).strip() == "":
+            return False
+        return normalized_target in str(candidate_value).lower()
+
     def _make_candidate_id(self, candidate_name: str) -> str:
-        return hashlib.sha1(candidate_name.strip().lower().encode("utf-8")).hexdigest()[:12]
+        return hashlib.sha256(candidate_name.strip().lower().encode("utf-8")).hexdigest()[:24]
 
     def _make_entity_id(self, text: str, published_at: str) -> str:
         value = f"{text}|{published_at}"
-        return hashlib.sha1(value.encode("utf-8")).hexdigest()[:16]
+        return hashlib.sha256(value.encode("utf-8")).hexdigest()[:32]
 
     def _calculate_raw_hash(self, payload: Dict[str, Any]) -> str:
         canon = json.dumps(payload, sort_keys=True, ensure_ascii=False)

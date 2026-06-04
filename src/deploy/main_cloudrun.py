@@ -11,7 +11,7 @@ from google.cloud import storage
 import functions_framework
 
 # Configuración desde Variables de Entorno
-APIFY_TOKEN = os.getenv("APIFY_TOKEN")
+APIFY_TOKEN = os.getenv("APIFY_API_TOKEN") or os.getenv("APIFY_TOKEN")
 GCS_BUCKET = os.getenv("GCS_BUCKET")
 
 @functions_framework.http
@@ -32,10 +32,19 @@ def orchestrate_extraction(request):
     try:
         # 1. Ejecutar Extracción en Apify
         client = ApifyClient(APIFY_TOKEN)
-        actor_id = "apify/instagram-comment-scraper"
+        actor_by_platform = {
+            "instagram": "apify/instagram-comment-scraper",
+            "facebook": "apify/facebook-comments-scraper",
+        }
+        actor_id = actor_by_platform.get(platform.lower(), "apify/facebook-comments-scraper")
         
         # Lógica de URL simplificada
-        profile_url = f"https://www.instagram.com/{target}/" if not target.startswith("http") else target
+        if target.startswith("http"):
+            profile_url = target
+        elif platform.lower() == "instagram":
+            profile_url = f"https://www.instagram.com/{target}/"
+        else:
+            profile_url = f"https://www.facebook.com/{target}/"
         
         run_input = {
             "directUrls": [profile_url],

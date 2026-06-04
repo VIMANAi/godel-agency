@@ -424,10 +424,11 @@ class DataIngestionPipeline:
             # Procesar cada registro
             valid_records = []
             invalid_records = []
+            input_path_parts = {part.lower() for part in input_file.parts}
+            is_synthetic_path = "synthetic" in input_path_parts and "raw" in input_path_parts
             
             for i, raw_record in enumerate(raw_data):
-                self.stats['total_records'] += 1
-                is_synthetic = bool(raw_record.get("is_synthetic", False)) or "synthetic" in input_file.as_posix().lower()
+                is_synthetic = self.is_truthy(raw_record.get("is_synthetic", False)) or is_synthetic_path
                 if is_synthetic and not self.config.allow_synthetic_input:
                     invalid_records.append({
                         'raw_record': raw_record,
@@ -588,6 +589,15 @@ class DataIngestionPipeline:
         if isinstance(raw_data, dict):
             return [raw_data]
         return []
+
+    def is_truthy(self, value: Any) -> bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value != 0
+        if isinstance(value, str):
+            return value.strip().lower() in {"1", "true", "yes", "y", "si", "sí"}
+        return False
     
     def get_processing_stats(self) -> Dict:
         """

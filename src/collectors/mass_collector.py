@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 import logging
 
 # Token de Apify
-APIFY_TOKEN = os.getenv("APIFY_TOKEN", "[REDACTED_FROM_ENV]")
+APIFY_TOKEN = os.getenv("APIFY_API_TOKEN") or os.getenv("APIFY_TOKEN", "[REDACTED_FROM_ENV]")
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class MassCollector:
     """
     def __init__(self) -> None:
         if not APIFY_TOKEN or "REDACTED" in APIFY_TOKEN or "TU_TOKEN" in APIFY_TOKEN:
-            raise ValueError("APIFY_TOKEN no configurado. Configura la variable de entorno APIFY_TOKEN.")
+            raise ValueError("Token de Apify no configurado. Configura APIFY_API_TOKEN (o APIFY_TOKEN legado).")
         self.client = ApifyClient(APIFY_TOKEN)
 
     def collect_from_post(self, post_url: str, limit: int = 20) -> List[Dict[str, Any]]:
