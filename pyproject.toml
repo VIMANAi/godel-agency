@@ -69,7 +69,7 @@ ignore = ["E501"]
 python_version = "3.10"
 ignore_missing_imports = true
 warn_unused_configs = true
-exclude = "(^notebooks/|^30_00_NOTEBOOKS/|^archive/|\.ipynb$)"
+exclude = "(^notebooks/|^30_00_NOTEBOOKS/|^archive/|\\.ipynb$)"
 
 [tool.coverage.run]
 source = ["src"]
