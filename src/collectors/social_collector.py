@@ -151,7 +151,10 @@ class SocialCollector:
                             for line in f:
                                 if not line.strip():
                                     continue
-                                r = json.loads(line)
+                                try:
+                                    r = json.loads(line)
+                                except json.JSONDecodeError:
+                                    continue
                                 cand = r.get("candidate", r.get("candidato", ""))
                                 if self._matches_target(cand, target):
                                     all_comments.append(r)
