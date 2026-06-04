@@ -424,8 +424,8 @@ class DataIngestionPipeline:
             # Procesar cada registro
             valid_records = []
             invalid_records = []
-            input_path_parts = {part.lower() for part in input_file.parts}
-            is_synthetic_path = "synthetic" in input_path_parts and "raw" in input_path_parts
+            input_path_parts = [part.lower() for part in input_file.parts]
+            is_synthetic_path = any(part == "synthetic" for part in input_path_parts) and any("raw" in part for part in input_path_parts)
             
             for i, raw_record in enumerate(raw_data):
                 is_synthetic = self.is_truthy(raw_record.get("is_synthetic", False)) or is_synthetic_path
