@@ -25,6 +25,6 @@
       }
     }
   },
-  "postCreateCommand": "python -m pip install --upgrade pip && pip install -r requirements.txt && pip install pre-commit ruff mypy pytest pytest-cov && pre-commit install && [ -f .env ] || cp .env.example .env",
+  "postCreateCommand": "python -m pip install --upgrade pip && pip install -r requirements.txt -r requirements-dev.txt && pre-commit install && [ -f .env ] || cp .env.example .env",
   "remoteUser": "vscode"
 }

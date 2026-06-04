@@ -1,0 +1,5 @@
+pre-commit>=4.0.0
+ruff>=0.7.0
+mypy>=1.11.0
+pytest>=9.0.0
+pytest-cov>=7.0.0
