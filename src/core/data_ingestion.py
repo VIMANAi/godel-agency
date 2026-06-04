@@ -53,6 +53,7 @@ class AnonymizationConfig:
     redact_addresses: bool = True
     redact_names: bool = True
     synthetic_data: bool = False
+    allow_synthetic_input: bool = False
     preserve_length: bool = True
 
 class SocialMediaRecord(BaseModel):
@@ -414,12 +415,8 @@ class DataIngestionPipeline:
         start_time = datetime.now()
         
         try:
-            # Cargar datos
-            with open(input_file, 'r', encoding='utf-8') as f:
-                raw_data = json.load(f)
-            
-            if not isinstance(raw_data, list):
-                raw_data = [raw_data]
+            # Cargar datos (JSON y JSONL)
+            raw_data = self.load_raw_data(input_file)
             
             results['total_records'] = len(raw_data)
             self.stats['total_records'] += len(raw_data)
@@ -430,6 +427,16 @@ class DataIngestionPipeline:
             
             for i, raw_record in enumerate(raw_data):
                 self.stats['total_records'] += 1
+                is_synthetic = bool(raw_record.get("is_synthetic", False)) or "synthetic" in input_file.as_posix().lower()
+                if is_synthetic and not self.config.allow_synthetic_input:
+                    invalid_records.append({
+                        'raw_record': raw_record,
+                        'validation_errors': ["Registro sintético rechazado por configuración"],
+                        'record_index': i
+                    })
+                    results['invalid_records'] += 1
+                    self.stats['invalid_records'] += 1
+                    continue
                 
                 # Validar y parsear
                 record, validation_log = self.validate_and_parse_record(raw_record)
@@ -512,8 +519,12 @@ class DataIngestionPipeline:
         
         start_time = datetime.now()
         
-        # Procesar todos los JSON files
-        for file_path in directory.glob("*.json"):
+        # Procesar todos los JSON/JSONL files de forma recursiva
+        for file_path in directory.rglob("*"):
+            if not file_path.is_file():
+                continue
+            if file_path.suffix.lower() not in {".json", ".jsonl"}:
+                continue
             if file_path.name.endswith(('_processed.json', '_rejected.json')):
                 continue  # Skip already processed files
             
@@ -541,6 +552,42 @@ class DataIngestionPipeline:
                    valid_records=results['valid_records'])
         
         return results
+
+    def load_raw_data(self, input_file: Path) -> List[Dict[str, Any]]:
+        """
+        Carga archivos JSON o JSONL de manera robusta.
+        """
+        if input_file.suffix.lower() == ".jsonl":
+            records: List[Dict[str, Any]] = []
+            with open(input_file, 'r', encoding='utf-8') as f:
+                for line_number, line in enumerate(f, start=1):
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
+                    try:
+                        parsed = json.loads(stripped)
+                    except json.JSONDecodeError as exc:
+                        logger.warning(
+                            "Línea JSONL inválida",
+                            file=str(input_file),
+                            line_number=line_number,
+                            error=str(exc)
+                        )
+                        continue
+                    if isinstance(parsed, list):
+                        records.extend([item for item in parsed if isinstance(item, dict)])
+                    elif isinstance(parsed, dict):
+                        records.append(parsed)
+            return records
+
+        with open(input_file, 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+
+        if isinstance(raw_data, list):
+            return [item for item in raw_data if isinstance(item, dict)]
+        if isinstance(raw_data, dict):
+            return [raw_data]
+        return []
     
     def get_processing_stats(self) -> Dict:
         """
